@@ -165,7 +165,7 @@
               <th class="py-3 px-3 w-28">Type</th>
               <th class="py-3 px-3 w-28 font-data">Seller ID</th>
               <th class="py-3 px-3 w-32 font-data">First Seen</th>
-              <th class="py-3 px-3 w-32 font-data">Status / Date Source</th>
+              <th class="py-3 px-3 w-28 font-data">Status</th>
             </tr>
           </thead>
           <tbody id="table-body" class="divide-y divide-slate-800/60 font-data">
@@ -206,11 +206,9 @@
     <!-- Details / Legend Card -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-normal">
       <div class="p-3.5 bg-[#0a0f1c] border border-slate-800/80 rounded-lg space-y-1">
-        <div class="font-semibold text-slate-300">Data Sources & Dates</div>
+        <div class="font-semibold text-slate-300">Tracking & Timeline</div>
         <p class="text-slate-400 leading-relaxed">
-          <span class="text-emerald-400 font-data font-medium">historical_import:</span> Verified date from original seed records.<br />
-          <span class="text-cyan-400 font-data font-medium">tracker:</span> Detected on date added by automated daily cron job.<br />
-          <span class="text-slate-400 font-data font-medium">tracker_seed:</span> Initial dataset baseline estimate.
+          First Seen records the exact date each domain was first verified on Journey. Daily automated cron jobs check for new joins and removals.
         </p>
       </div>
 
@@ -472,7 +470,7 @@
           const removedOn = (item.removed_on || "").trim();
           const dateSource = (item.date_source || "").trim();
 
-          // Badges
+          // Status indicators
           let badgeHtml = "";
           let statusBadge = "";
 
@@ -484,14 +482,6 @@
             statusBadge = `<span class="text-rose-400">Left ${removedOn}</span>`;
           } else {
             statusBadge = '<span class="text-emerald-400 font-medium">Active</span>';
-          }
-
-          if (dateSource === "tracker_seed") {
-            badgeHtml += '<span class="inline-block px-1.5 py-0.2 text-[10px] bg-slate-800 text-slate-300 border border-slate-700 rounded ml-1 font-sans font-medium" title="Date estimated at tracker start">estimated</span>';
-          } else if (dateSource === "historical_import") {
-            badgeHtml += '<span class="inline-block px-1.5 py-0.2 text-[10px] bg-emerald-950/60 text-emerald-300 border border-emerald-800/60 rounded ml-1 font-sans font-medium">historical</span>';
-          } else if (dateSource === "tracker") {
-            badgeHtml += '<span class="inline-block px-1.5 py-0.2 text-[10px] bg-cyan-950/60 text-cyan-300 border border-cyan-800/60 rounded ml-1 font-sans font-medium">tracker</span>';
           }
 
           const hasHttp = domain.startsWith("http://") || domain.startsWith("https://");

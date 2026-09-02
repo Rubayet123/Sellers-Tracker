@@ -501,21 +501,6 @@ git push -u origin main`}
                                     removed
                                   </span>
                                 )}
-                                {item.date_source === "tracker_seed" && (
-                                  <span className="inline-block px-1.5 py-0.2 text-[10px] bg-slate-800 text-slate-300 border border-slate-700 rounded ml-1 font-sans font-medium" title="Estimated at baseline">
-                                    estimated
-                                  </span>
-                                )}
-                                {item.date_source === "historical_import" && (
-                                  <span className="inline-block px-1.5 py-0.2 text-[10px] bg-emerald-950/60 text-emerald-300 border border-emerald-800/60 rounded ml-1 font-sans font-medium">
-                                    historical
-                                  </span>
-                                )}
-                                {item.date_source === "tracker" && (
-                                  <span className="inline-block px-1.5 py-0.2 text-[10px] bg-cyan-950/60 text-cyan-300 border border-cyan-800/60 rounded ml-1 font-sans font-medium">
-                                    tracker
-                                  </span>
-                                )}
                               </div>
                             </td>
                             <td className="py-2.5 px-4 text-slate-300 font-sans text-xs truncate max-w-[260px]" title={item.name}>
