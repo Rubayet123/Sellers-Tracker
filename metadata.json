@@ -1,0 +1,6 @@
+{
+  "name": "Mediavine Journey Sellers Tracker",
+  "description": "Static, serverless tracker and search tool for websites in Mediavine Journey's public sellers.json feed.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
