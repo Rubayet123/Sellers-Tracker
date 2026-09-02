@@ -1,18 +1,597 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mediavine Journey Sellers Tracker</title>
-    <meta name="description" content="Static, serverless tracker and search tool for websites in Mediavine Journey's public sellers.json feed." />
-    <meta property="og:title" content="Mediavine Journey Sellers Tracker" />
-    <meta property="og:description" content="Static, serverless tracker and search tool for websites in Mediavine Journey's public sellers.json feed." />
-    <meta property="og:type" content="website" />
-    <meta name="twitter:card" content="summary_large_image" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mediavine Journey Sellers Tracker — Live Domain Index</title>
+  <meta name="description" content="Static, serverless domain directory and date-added tracker for Mediavine Journey publishers feed." />
+  
+  <!-- Tailwind CSS & Fonts -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  
+  <style>
+    :root {
+      color-scheme: dark;
+    }
+    body {
+      background-color: #090d16;
+      color: #cbd5e1;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+    .font-data {
+      font-family: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-feature-settings: "tnum" 1;
+    }
+    /* Custom compact scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #090d16;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-cyan-500/20 selection:text-cyan-300">
 
+  <!-- Top Navigation / Brand Header -->
+  <header class="border-b border-slate-800/80 bg-[#0c1220]/90 backdrop-blur sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="h-8 w-8 rounded bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-data font-bold text-sm">
+          MV
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-semibold text-slate-100 text-base tracking-tight">Journey Sellers Tracker</h1>
+            <span class="px-2 py-0.5 text-[11px] font-data bg-cyan-950/60 text-cyan-400 border border-cyan-800/50 rounded">LIVE FEED</span>
+          </div>
+          <p class="text-xs text-slate-400 font-normal">Tracking every website in Mediavine Journey sellers.json over time</p>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Bar -->
+      <div class="flex items-center gap-2 sm:gap-4 text-xs font-data flex-wrap">
+        <div class="bg-slate-900/90 border border-slate-800 px-3 py-1.5 rounded flex items-center gap-2">
+          <span class="text-slate-400">Active Sites:</span>
+          <span id="stat-active" class="text-emerald-400 font-bold">—</span>
+        </div>
+        <div class="bg-slate-900/90 border border-slate-800 px-3 py-1.5 rounded flex items-center gap-2">
+          <span class="text-slate-400">New (7d):</span>
+          <span id="stat-new" class="text-cyan-400 font-bold">—</span>
+        </div>
+        <div class="bg-slate-900/90 border border-slate-800 px-3 py-1.5 rounded flex items-center gap-2">
+          <span class="text-slate-400">Total Tracked:</span>
+          <span id="stat-total" class="text-slate-200 font-bold">—</span>
+        </div>
+        <div class="bg-slate-900/90 border border-slate-800 px-3 py-1.5 rounded flex items-center gap-2 hidden md:flex">
+          <span class="text-slate-400">Updated:</span>
+          <span id="stat-updated" class="text-slate-300">—</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Layout -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-4">
+    
+    <!-- Controls Bar -->
+    <div class="bg-[#0e1526] border border-slate-800 rounded-lg p-4 space-y-3 shadow-sm">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
+        
+        <!-- Search Input -->
+        <div class="lg:col-span-5 relative">
+          <input
+            type="text"
+            id="search-input"
+            placeholder="Search domain or publisher name..."
+            class="w-full bg-[#080c14] border border-slate-700/80 rounded px-3.5 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500/70 focus:ring-1 focus:ring-cyan-500/50 font-data"
+          />
+          <button id="clear-search" class="hidden absolute right-2.5 top-2.5 text-xs text-slate-400 hover:text-slate-200" title="Clear">✕</button>
+        </div>
+
+        <!-- Seller Type Filter -->
+        <div class="lg:col-span-3">
+          <select
+            id="filter-type"
+            class="w-full bg-[#080c14] border border-slate-700/80 rounded px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500/70 font-data"
+          >
+            <option value="ALL">All Seller Types</option>
+            <option value="PUBLISHER">PUBLISHER only</option>
+            <option value="INTERMEDIARY">INTERMEDIARY only</option>
+            <option value="BOTH">BOTH only</option>
+          </select>
+        </div>
+
+        <!-- Sort Filter -->
+        <div class="lg:col-span-4">
+          <select
+            id="sort-select"
+            class="w-full bg-[#080c14] border border-slate-700/80 rounded px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500/70 font-data"
+          >
+            <option value="newest">Sort: First Seen (Newest First)</option>
+            <option value="oldest">Sort: First Seen (Oldest First)</option>
+            <option value="domain-asc">Sort: Domain (A → Z)</option>
+            <option value="domain-desc">Sort: Domain (Z → A)</option>
+            <option value="name-asc">Sort: Publisher Name (A → Z)</option>
+          </select>
+        </div>
+
+      </div>
+
+      <!-- Secondary Toggles and Actions -->
+      <div class="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-slate-800/80 text-xs text-slate-400">
+        <div class="flex items-center gap-4 flex-wrap">
+          <label class="flex items-center gap-2 cursor-pointer select-none text-slate-300 hover:text-slate-100">
+            <input type="checkbox" id="toggle-removed" class="rounded bg-slate-900 border-slate-700 text-rose-500 focus:ring-0 focus:ring-offset-0" />
+            <span>Show Removed</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer select-none text-slate-300 hover:text-slate-100">
+            <input type="checkbox" id="toggle-pretracking" class="rounded bg-slate-900 border-slate-700 text-amber-500 focus:ring-0 focus:ring-offset-0" />
+            <span>Show Pre-tracking Legacy</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer select-none text-slate-300 hover:text-slate-100">
+            <input type="checkbox" id="toggle-newonly" class="rounded bg-slate-900 border-slate-700 text-cyan-500 focus:ring-0 focus:ring-offset-0" />
+            <span>Added in 2025-2026 Only</span>
+          </label>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <span id="filtered-count" class="font-data text-slate-400">Loading data...</span>
+          <button id="export-btn" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded font-data text-xs flex items-center gap-1.5 transition">
+            <span>Export Filtered CSV</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data Table Container -->
+    <div class="bg-[#0c1220] border border-slate-800 rounded-lg overflow-hidden shadow">
+      <div class="overflow-x-auto min-h-[380px]">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="border-b border-slate-800 bg-[#090e1a] text-slate-400 uppercase tracking-wider font-semibold font-data">
+              <th class="py-3 px-3 w-12 text-center">#</th>
+              <th class="py-3 px-4 min-w-[220px]">Domain</th>
+              <th class="py-3 px-4 min-w-[200px]">Publisher Name</th>
+              <th class="py-3 px-3 w-28">Type</th>
+              <th class="py-3 px-3 w-28 font-data">Seller ID</th>
+              <th class="py-3 px-3 w-32 font-data">First Seen</th>
+              <th class="py-3 px-3 w-32 font-data">Status / Date Source</th>
+            </tr>
+          </thead>
+          <tbody id="table-body" class="divide-y divide-slate-800/60 font-data">
+            <tr>
+              <td colspan="7" class="py-16 text-center text-slate-500 font-sans">
+                <div class="inline-block animate-spin rounded-full h-6 w-6 border-2 border-cyan-500 border-t-transparent mb-2"></div>
+                <div>Fetching dataset (sellers.csv)...</div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Toolbar -->
+      <div class="border-t border-slate-800/90 px-4 py-3 bg-[#090e1a] flex flex-wrap items-center justify-between gap-3 text-xs font-data text-slate-400">
+        <div class="flex items-center gap-2">
+          <span>Rows per page:</span>
+          <span class="text-slate-200 font-bold">50</span>
+          <span class="text-slate-600">|</span>
+          <span id="page-summary">Page 1 of 1</span>
+        </div>
+
+        <div class="flex items-center gap-1">
+          <button id="btn-first" class="px-2.5 py-1 rounded bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed">« First</button>
+          <button id="btn-prev" class="px-2.5 py-1 rounded bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed">‹ Prev</button>
+          
+          <div class="flex items-center gap-1 px-2">
+            <span>Go to:</span>
+            <input type="number" id="jump-page" min="1" class="w-14 bg-slate-900 border border-slate-700 text-center py-0.5 rounded text-slate-100 text-xs focus:outline-none" />
+          </div>
+
+          <button id="btn-next" class="px-2.5 py-1 rounded bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed">Next ›</button>
+          <button id="btn-last" class="px-2.5 py-1 rounded bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed">Last »</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Details / Legend Card -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-normal">
+      <div class="p-3.5 bg-[#0a0f1c] border border-slate-800/80 rounded-lg space-y-1">
+        <div class="font-semibold text-slate-300">Data Sources & Dates</div>
+        <p class="text-slate-400 leading-relaxed">
+          <span class="text-emerald-400 font-data font-medium">historical_import:</span> Verified date from original seed records.<br />
+          <span class="text-cyan-400 font-data font-medium">tracker:</span> Detected on date added by automated daily cron job.<br />
+          <span class="text-slate-400 font-data font-medium">tracker_seed:</span> Initial dataset baseline estimate.
+        </p>
+      </div>
+
+      <div class="p-3.5 bg-[#0a0f1c] border border-slate-800/80 rounded-lg space-y-1">
+        <div class="font-semibold text-slate-300">Seller Types & Keys</div>
+        <p class="text-slate-400 leading-relaxed">
+          Indexed primarily by <code class="text-slate-200 font-data">seller_id</code> as published in the ads.txt-standard feed. Duplicates under different seller IDs are preserved.
+        </p>
+      </div>
+
+      <div class="p-3.5 bg-[#0a0f1c] border border-slate-800/80 rounded-lg space-y-1">
+        <div class="font-semibold text-slate-300">Churn & Reactivation</div>
+        <p class="text-slate-400 leading-relaxed">
+          Sellers dropped from the feed are archived with <code class="text-rose-400 font-data">removed_on</code> and restored if they rejoin Journey.
+        </p>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Clean Footer -->
+  <footer class="border-t border-slate-800/80 bg-[#070a12] mt-auto py-5 text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 font-sans">
+      <div>
+        Data sourced from <a href="https://sellers.journeymv.com/sellers.json" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:underline font-data">sellers.journeymv.com/sellers.json</a>
+      </div>
+      <div class="flex items-center gap-4">
+        <span>Serverless Static Tracker</span>
+        <span>•</span>
+        <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="hover:text-slate-300">GitHub Actions & Pages</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Viewer Logic -->
+  <script>
+    (function () {
+      const PAGE_SIZE = 50;
+      let rawData = [];
+      let filteredData = [];
+      let currentPage = 1;
+      let totalPages = 1;
+
+      // DOM Elements
+      const searchInput = document.getElementById("search-input");
+      const clearSearchBtn = document.getElementById("clear-search");
+      const filterType = document.getElementById("filter-type");
+      const sortSelect = document.getElementById("sort-select");
+      const toggleRemoved = document.getElementById("toggle-removed");
+      const togglePretracking = document.getElementById("toggle-pretracking");
+      const toggleNewOnly = document.getElementById("toggle-newonly");
+      const tableBody = document.getElementById("table-body");
+      const filteredCountEl = document.getElementById("filtered-count");
+      const pageSummaryEl = document.getElementById("page-summary");
+      const btnFirst = document.getElementById("btn-first");
+      const btnPrev = document.getElementById("btn-prev");
+      const btnNext = document.getElementById("btn-next");
+      const btnLast = document.getElementById("btn-last");
+      const jumpPageInput = document.getElementById("jump-page");
+      const exportBtn = document.getElementById("export-btn");
+
+      // Metric elements
+      const statActive = document.getElementById("stat-active");
+      const statNew = document.getElementById("stat-new");
+      const statTotal = document.getElementById("stat-total");
+      const statUpdated = document.getElementById("stat-updated");
+
+      // Load CSV with robust fallback paths
+      function init() {
+        const candidatePaths = [
+          "sellers.csv",
+          "/sellers.csv",
+          "docs/sellers.csv",
+          "/docs/sellers.csv",
+          "/data/sellers.csv",
+          "../data/sellers.csv"
+        ];
+
+        function tryNext(index) {
+          if (index >= candidatePaths.length) {
+            showError();
+            return;
+          }
+
+          const path = candidatePaths[index];
+          Papa.parse(path, {
+            download: true,
+            header: true,
+            skipEmptyLines: true,
+            complete: function (results) {
+              if (results && results.data && results.data.length > 0) {
+                rawData = results.data.filter(r => r.seller_id || r.domain);
+                if (rawData.length > 0) {
+                  computeStats(rawData);
+                  applyFilters();
+                  return;
+                }
+              }
+              tryNext(index + 1);
+            },
+            error: function () {
+              tryNext(index + 1);
+            }
+          });
+        }
+
+        tryNext(0);
+      }
+
+      function showError() {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="7" class="py-12 text-center text-rose-400 font-sans">
+              Failed to load sellers.csv. Make sure the dataset has been generated or seeded.
+            </td>
+          </tr>
+        `;
+        filteredCountEl.textContent = "Error loading data";
+      }
+
+      function computeStats(data) {
+        let active = 0;
+        let recentNew = 0;
+        let maxDate = "";
+
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+        const cutoffStr = oneWeekAgo.toISOString().split("T")[0];
+
+        data.forEach(r => {
+          const removed = (r.removed_on || "").trim();
+          if (!removed) active++;
+          const fs = (r.first_seen || "").trim();
+          if (fs > maxDate) maxDate = fs;
+          if (fs >= cutoffStr && !removed) {
+            recentNew++;
+          }
+        });
+
+        statActive.textContent = active.toLocaleString();
+        statNew.textContent = `+${recentNew.toLocaleString()}`;
+        statTotal.textContent = data.length.toLocaleString();
+        statUpdated.textContent = maxDate || new Date().toISOString().split("T")[0];
+      }
+
+      function applyFilters() {
+        const query = (searchInput.value || "").trim().toLowerCase();
+        const typeFilter = filterType.value;
+        const sortVal = sortSelect.value;
+        const showRemoved = toggleRemoved.checked;
+        const showPretracking = togglePretracking.checked;
+        const newOnly = toggleNewOnly.checked;
+
+        clearSearchBtn.classList.toggle("hidden", !query);
+
+        filteredData = rawData.filter(item => {
+          const domain = (item.domain || "").toLowerCase();
+          const name = (item.name || "").toLowerCase();
+          const sellerType = (item.seller_type || "").toUpperCase();
+          const removedOn = (item.removed_on || "").trim();
+          const firstSeen = (item.first_seen || "").trim();
+
+          // Removed / Pretracking filter
+          if (removedOn === "pre-tracking") {
+            if (!showPretracking) return false;
+          } else if (removedOn !== "") {
+            if (!showRemoved) return false;
+          }
+
+          // Added in 2025/2026 filter
+          if (newOnly) {
+            if (!firstSeen.startsWith("2025") && !firstSeen.startsWith("2026")) {
+              return false;
+            }
+          }
+
+          // Seller Type filter
+          if (typeFilter !== "ALL") {
+            if (sellerType !== typeFilter) return false;
+          }
+
+          // Search query filter
+          if (query) {
+            if (!domain.includes(query) && !name.includes(query)) {
+              return false;
+            }
+          }
+
+          return true;
+        });
+
+        // Sorting
+        filteredData.sort((a, b) => {
+          const aFs = a.first_seen || "";
+          const bFs = b.first_seen || "";
+          const aDom = a.domain || "";
+          const bDom = b.domain || "";
+          const aName = a.name || "";
+          const bName = b.name || "";
+
+          switch (sortVal) {
+            case "newest":
+              return bFs.localeCompare(aFs) || aDom.localeCompare(bDom);
+            case "oldest":
+              return aFs.localeCompare(bFs) || aDom.localeCompare(bDom);
+            case "domain-asc":
+              return aDom.localeCompare(bDom);
+            case "domain-desc":
+              return bDom.localeCompare(aDom);
+            case "name-asc":
+              return aName.localeCompare(bName);
+            default:
+              return bFs.localeCompare(aFs);
+          }
+        });
+
+        currentPage = 1;
+        totalPages = Math.max(1, Math.ceil(filteredData.length / PAGE_SIZE));
+        render();
+      }
+
+      function render() {
+        totalPages = Math.max(1, Math.ceil(filteredData.length / PAGE_SIZE));
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
+
+        filteredCountEl.textContent = `${filteredData.length.toLocaleString()} matching results`;
+        pageSummaryEl.textContent = `Page ${currentPage} of ${totalPages}`;
+        jumpPageInput.value = currentPage;
+        jumpPageInput.max = totalPages;
+
+        btnFirst.disabled = currentPage === 1;
+        btnPrev.disabled = currentPage === 1;
+        btnNext.disabled = currentPage === totalPages;
+        btnLast.disabled = currentPage === totalPages;
+
+        if (filteredData.length === 0) {
+          tableBody.innerHTML = `
+            <tr>
+              <td colspan="7" class="py-12 text-center text-slate-500 font-sans">
+                No matching sellers found for the active search criteria.
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        const startIdx = (currentPage - 1) * PAGE_SIZE;
+        const pageItems = filteredData.slice(startIdx, startIdx + PAGE_SIZE);
+
+        const rowsHtml = pageItems.map((item, index) => {
+          const rowNum = startIdx + index + 1;
+          const domain = item.domain || "—";
+          const name = item.name || "—";
+          const sid = item.seller_id || "—";
+          const sellerType = item.seller_type || "PUBLISHER";
+          const firstSeen = item.first_seen || "—";
+          const lastSeen = item.last_seen || "";
+          const removedOn = (item.removed_on || "").trim();
+          const dateSource = (item.date_source || "").trim();
+
+          // Badges
+          let badgeHtml = "";
+          let statusBadge = "";
+
+          if (removedOn === "pre-tracking") {
+            badgeHtml += '<span class="inline-block px-1.5 py-0.2 text-[10px] bg-amber-950/70 text-amber-300 border border-amber-800/60 rounded ml-1.5 font-sans font-medium">pre-tracking</span>';
+            statusBadge = '<span class="text-amber-400/90">Pre-tracking</span>';
+          } else if (removedOn) {
+            badgeHtml += '<span class="inline-block px-1.5 py-0.2 text-[10px] bg-rose-950/70 text-rose-300 border border-rose-800/60 rounded ml-1.5 font-sans font-medium">removed</span>';
+            statusBadge = `<span class="text-rose-400">Left ${removedOn}</span>`;
+          } else {
+            statusBadge = '<span class="text-emerald-400 font-medium">Active</span>';
+          }
+
+          if (dateSource === "tracker_seed") {
+            badgeHtml += '<span class="inline-block px-1.5 py-0.2 text-[10px] bg-slate-800 text-slate-300 border border-slate-700 rounded ml-1 font-sans font-medium" title="Date estimated at tracker start">estimated</span>';
+          } else if (dateSource === "historical_import") {
+            badgeHtml += '<span class="inline-block px-1.5 py-0.2 text-[10px] bg-emerald-950/60 text-emerald-300 border border-emerald-800/60 rounded ml-1 font-sans font-medium">historical</span>';
+          } else if (dateSource === "tracker") {
+            badgeHtml += '<span class="inline-block px-1.5 py-0.2 text-[10px] bg-cyan-950/60 text-cyan-300 border border-cyan-800/60 rounded ml-1 font-sans font-medium">tracker</span>';
+          }
+
+          const hasHttp = domain.startsWith("http://") || domain.startsWith("https://");
+          const url = hasHttp ? domain : `https://${domain}`;
+
+          return `
+            <tr class="hover:bg-slate-800/40 transition-colors group">
+              <td class="py-2.5 px-3 text-center text-slate-500 text-[11px]">${rowNum}</td>
+              <td class="py-2.5 px-4 font-data">
+                <div class="flex items-center flex-wrap gap-y-1">
+                  ${domain !== "—" ? `
+                    <a href="${url}" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:text-cyan-300 hover:underline inline-flex items-center gap-1 group-hover:text-cyan-300">
+                      <span>${escapeHtml(domain)}</span>
+                      <svg class="w-3 h-3 opacity-60 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    </a>
+                  ` : `<span class="text-slate-500">—</span>`}
+                  ${badgeHtml}
+                </div>
+              </td>
+              <td class="py-2.5 px-4 text-slate-300 font-sans text-xs truncate max-w-[260px]" title="${escapeHtml(name)}">
+                ${escapeHtml(name)}
+              </td>
+              <td class="py-2.5 px-3 font-data text-xs text-slate-400">
+                <span class="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800 text-[11px]">${escapeHtml(sellerType)}</span>
+              </td>
+              <td class="py-2.5 px-3 font-data text-slate-400 text-xs truncate max-w-[120px]" title="${escapeHtml(sid)}">
+                ${escapeHtml(sid)}
+              </td>
+              <td class="py-2.5 px-3 font-data text-slate-200 text-xs whitespace-nowrap">
+                ${escapeHtml(firstSeen)}
+              </td>
+              <td class="py-2.5 px-3 font-data text-[11px] whitespace-nowrap">
+                <div class="flex items-center gap-1.5">
+                  ${statusBadge}
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join("");
+
+        tableBody.innerHTML = rowsHtml;
+      }
+
+      function escapeHtml(str) {
+        if (!str) return "";
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      // Export CSV
+      function exportFiltered() {
+        if (!filteredData || filteredData.length === 0) return;
+        const csvContent = Papa.unparse(filteredData);
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `journey_sellers_export_${new Date().toISOString().split("T")[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+
+      // Event Listeners
+      searchInput.addEventListener("input", applyFilters);
+      clearSearchBtn.addEventListener("click", () => {
+        searchInput.value = "";
+        applyFilters();
+      });
+      filterType.addEventListener("change", applyFilters);
+      sortSelect.addEventListener("change", applyFilters);
+      toggleRemoved.addEventListener("change", applyFilters);
+      togglePretracking.addEventListener("change", applyFilters);
+      toggleNewOnly.addEventListener("change", applyFilters);
+      exportBtn.addEventListener("click", exportFiltered);
+
+      btnFirst.addEventListener("click", () => { currentPage = 1; render(); });
+      btnPrev.addEventListener("click", () => { if (currentPage > 1) { currentPage--; render(); } });
+      btnNext.addEventListener("click", () => { if (currentPage < totalPages) { currentPage++; render(); } });
+      btnLast.addEventListener("click", () => { currentPage = totalPages; render(); });
+
+      jumpPageInput.addEventListener("change", (e) => {
+        const val = parseInt(e.target.value, 10);
+        if (!isNaN(val) && val >= 1 && val <= totalPages) {
+          currentPage = val;
+          render();
+        } else {
+          e.target.value = currentPage;
+        }
+      });
+
+      // Start fetching
+      init();
+    })();
+  </script>
+</body>
+</html>

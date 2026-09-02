@@ -278,42 +278,46 @@
       const statTotal = document.getElementById("stat-total");
       const statUpdated = document.getElementById("stat-updated");
 
-      // Load CSV
+      // Load CSV with robust fallback paths
       function init() {
-        const csvPath = "sellers.csv";
-        Papa.parse(csvPath, {
-          download: true,
-          header: true,
-          skipEmptyLines: true,
-          complete: function (results) {
-            if (results && results.data && results.data.length > 0) {
-              rawData = results.data.filter(r => r.seller_id || r.domain);
-              computeStats(rawData);
-              applyFilters();
-            } else {
-              tableBody.innerHTML = '<tr><td colspan="7" class="py-12 text-center text-slate-500 font-sans">No data rows found in sellers.csv</td></tr>';
-            }
-          },
-          error: function (err) {
-            console.error("PapaParse error:", err);
-            // Try relative fallback
-            Papa.parse("../data/sellers.csv", {
-              download: true,
-              header: true,
-              skipEmptyLines: true,
-              complete: function (res2) {
-                if (res2 && res2.data && res2.data.length > 0) {
-                  rawData = res2.data.filter(r => r.seller_id || r.domain);
+        const candidatePaths = [
+          "sellers.csv",
+          "/sellers.csv",
+          "docs/sellers.csv",
+          "/docs/sellers.csv",
+          "/data/sellers.csv",
+          "../data/sellers.csv"
+        ];
+
+        function tryNext(index) {
+          if (index >= candidatePaths.length) {
+            showError();
+            return;
+          }
+
+          const path = candidatePaths[index];
+          Papa.parse(path, {
+            download: true,
+            header: true,
+            skipEmptyLines: true,
+            complete: function (results) {
+              if (results && results.data && results.data.length > 0) {
+                rawData = results.data.filter(r => r.seller_id || r.domain);
+                if (rawData.length > 0) {
                   computeStats(rawData);
                   applyFilters();
-                } else {
-                  showError();
+                  return;
                 }
-              },
-              error: showError
-            });
-          }
-        });
+              }
+              tryNext(index + 1);
+            },
+            error: function () {
+              tryNext(index + 1);
+            }
+          });
+        }
+
+        tryNext(0);
       }
 
       function showError() {
@@ -333,7 +337,7 @@
         let maxDate = "";
 
         const oneWeekAgo = new Date();
-        oneWeekAgo.setDate(oneWeekAgo.getDate() - 14);
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
         const cutoffStr = oneWeekAgo.toISOString().split("T")[0];
 
         data.forEach(r => {
