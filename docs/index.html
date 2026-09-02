@@ -6,7 +6,7 @@
   <title>Mediavine Journey Sellers Tracker — Live Domain Index</title>
   <meta name="description" content="Static, serverless domain directory and date-added tracker for Mediavine Journey publishers feed." />
   
-  <!-- Tailwind CSS & Fonts -->
+  <!-- Tailwind CSS & Fonts & PapaParse -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   
@@ -15,7 +15,7 @@
       color-scheme: dark;
     }
     body {
-      background-color: #090d16;
+      background-color: #080c15;
       color: #cbd5e1;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     }
@@ -23,13 +23,13 @@
       font-family: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Monaco, Consolas, "Liberation Mono", monospace;
       font-feature-settings: "tnum" 1;
     }
-    /* Custom compact scrollbar */
+    /* Custom scrollbars */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
     }
     ::-webkit-scrollbar-track {
-      background: #090d16;
+      background: #080c15;
     }
     ::-webkit-scrollbar-thumb {
       background: #1e293b;
@@ -38,71 +38,136 @@
     ::-webkit-scrollbar-thumb:hover {
       background: #334155;
     }
+    /* Compact mode styles */
+    body.density-compact .data-row td {
+      padding-top: 0.35rem;
+      padding-bottom: 0.35rem;
+      font-size: 0.7rem;
+    }
+    body.density-compact .data-row th {
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
+    }
+    .badge-chip {
+      transition: all 0.15s ease-in-out;
+    }
+    .badge-chip:hover {
+      transform: translateY(-1px);
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col antialiased selection:bg-cyan-500/20 selection:text-cyan-300">
 
   <!-- Top Navigation / Brand Header -->
-  <header class="border-b border-slate-800/80 bg-[#0c1220]/90 backdrop-blur sticky top-0 z-30">
+  <header class="border-b border-slate-800/80 bg-[#0b101d]/90 backdrop-blur sticky top-0 z-30">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
       <div class="flex items-center gap-3">
-        <div class="h-8 w-8 rounded bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 font-data font-bold text-sm">
+        <div class="h-9 w-9 rounded-lg bg-gradient-to-br from-cyan-500/20 to-blue-600/10 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-data font-bold text-sm shadow-sm">
           MV
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <h1 class="font-semibold text-slate-100 text-base tracking-tight">Journey Sellers Tracker</h1>
-            <span class="px-2 py-0.5 text-[11px] font-data bg-cyan-950/60 text-cyan-400 border border-cyan-800/50 rounded">LIVE FEED</span>
+            <h1 class="font-bold text-slate-100 text-base tracking-tight">Journey Sellers Tracker</h1>
+            <span class="px-2 py-0.5 text-[10px] font-data font-semibold bg-cyan-950/80 text-cyan-400 border border-cyan-800/60 rounded">LIVE FEED</span>
           </div>
-          <p class="text-xs text-slate-400 font-normal">Tracking every website in Mediavine Journey sellers.json over time</p>
+          <p class="text-xs text-slate-400 font-normal">Tracking verified websites & dates in Mediavine Journey sellers.json</p>
         </div>
       </div>
 
       <!-- Quick Metrics Bar -->
-      <div class="flex items-center gap-2 sm:gap-4 text-xs font-data flex-wrap">
-        <div class="bg-slate-900/90 border border-slate-800 px-3 py-1.5 rounded flex items-center gap-2">
+      <div class="flex items-center gap-2 sm:gap-3 text-xs font-data flex-wrap">
+        <div class="bg-slate-900/90 border border-slate-800/80 px-3 py-1.5 rounded-md flex items-center gap-2 shadow-sm">
           <span class="text-slate-400">Active Sites:</span>
           <span id="stat-active" class="text-emerald-400 font-bold">—</span>
         </div>
-        <div class="bg-slate-900/90 border border-slate-800 px-3 py-1.5 rounded flex items-center gap-2">
+        <div class="bg-slate-900/90 border border-slate-800/80 px-3 py-1.5 rounded-md flex items-center gap-2 shadow-sm cursor-pointer hover:border-cyan-500/50 transition" id="stat-new-card" title="Click to filter new in 7 days">
           <span class="text-slate-400">New (7d):</span>
           <span id="stat-new" class="text-cyan-400 font-bold">—</span>
         </div>
-        <div class="bg-slate-900/90 border border-slate-800 px-3 py-1.5 rounded flex items-center gap-2">
+        <div class="bg-slate-900/90 border border-slate-800/80 px-3 py-1.5 rounded-md flex items-center gap-2 shadow-sm">
           <span class="text-slate-400">Total Tracked:</span>
           <span id="stat-total" class="text-slate-200 font-bold">—</span>
         </div>
-        <div class="bg-slate-900/90 border border-slate-800 px-3 py-1.5 rounded flex items-center gap-2 hidden md:flex">
+        <div class="bg-slate-900/90 border border-slate-800/80 px-3 py-1.5 rounded-md flex items-center gap-2 shadow-sm hidden md:flex">
           <span class="text-slate-400">Updated:</span>
-          <span id="stat-updated" class="text-slate-300">—</span>
+          <span id="stat-updated" class="text-slate-300 font-medium">—</span>
         </div>
       </div>
     </div>
   </header>
 
   <!-- Main Content Layout -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-4">
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-5 space-y-4">
     
-    <!-- Controls Bar -->
+    <!-- Quick Preset Chips Bar -->
+    <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs font-data no-scrollbar">
+      <span class="text-slate-500 text-[11px] uppercase tracking-wider font-semibold mr-1 shrink-0">Presets:</span>
+      <button class="preset-chip active px-2.5 py-1 rounded-md bg-cyan-950/80 border border-cyan-700/70 text-cyan-300 hover:bg-cyan-900/60 transition whitespace-nowrap" data-preset="all">
+        All Records
+      </button>
+      <button class="preset-chip px-2.5 py-1 rounded-md bg-slate-900/90 border border-slate-800 text-slate-300 hover:text-cyan-300 hover:border-slate-700 transition whitespace-nowrap" data-preset="new7d">
+        ⚡ Added Last 7 Days
+      </button>
+      <button class="preset-chip px-2.5 py-1 rounded-md bg-slate-900/90 border border-slate-800 text-slate-300 hover:text-cyan-300 hover:border-slate-700 transition whitespace-nowrap" data-preset="y2026">
+        📅 2026 Additions
+      </button>
+      <button class="preset-chip px-2.5 py-1 rounded-md bg-slate-900/90 border border-slate-800 text-slate-300 hover:text-cyan-300 hover:border-slate-700 transition whitespace-nowrap" data-preset="multi">
+        🏢 Multi-Domain Publishers (3+)
+      </button>
+      <button class="preset-chip px-2.5 py-1 rounded-md bg-slate-900/90 border border-slate-800 text-slate-300 hover:text-cyan-300 hover:border-slate-700 transition whitespace-nowrap" data-preset="active">
+        🟢 Active Sites Only
+      </button>
+      <button class="preset-chip px-2.5 py-1 rounded-md bg-slate-900/90 border border-slate-800 text-slate-300 hover:text-cyan-300 hover:border-slate-700 transition whitespace-nowrap" data-preset="churned">
+        🔴 Churned / Removed
+      </button>
+      <button id="btn-open-checker" class="ml-auto px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white transition whitespace-nowrap flex items-center gap-1.5 shrink-0">
+        <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        </svg>
+        <span>Bulk Domain Checker</span>
+      </button>
+    </div>
+
+    <!-- Active Entity Filter Bar (Shown when a publisher or seller ID is clicked) -->
+    <div id="entity-filter-banner" class="hidden bg-cyan-950/40 border border-cyan-800/60 rounded-lg p-3 text-xs flex flex-wrap items-center justify-between gap-3 font-data shadow-sm animate-fadeIn">
+      <div class="flex items-center gap-2.5 flex-wrap">
+        <span class="h-2 w-2 rounded-full bg-cyan-400 animate-pulse"></span>
+        <span class="text-slate-400">Active Entity Filter:</span>
+        <span id="entity-filter-label" class="px-2.5 py-1 rounded bg-cyan-900/70 border border-cyan-600 text-cyan-200 font-bold">
+          Publisher: "Mediavine Inc"
+        </span>
+        <span id="entity-count-badge" class="text-slate-400 font-normal">(14 matching domains)</span>
+      </div>
+      <button id="btn-clear-entity" class="px-2 py-1 rounded bg-cyan-900/60 hover:bg-cyan-800 border border-cyan-700 text-cyan-200 text-xs flex items-center gap-1 transition">
+        <span>✕ Clear Entity Filter</span>
+      </button>
+    </div>
+
+    <!-- Main Controls & Search Bar -->
     <div class="bg-[#0e1526] border border-slate-800 rounded-lg p-4 space-y-3 shadow-sm">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
         
-        <!-- Search Input -->
-        <div class="lg:col-span-5 relative">
+        <!-- Search Input with Clear Button -->
+        <div class="lg:col-span-6 relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
           <input
             type="text"
             id="search-input"
-            placeholder="Search domain or publisher name..."
-            class="w-full bg-[#080c14] border border-slate-700/80 rounded px-3.5 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500/70 focus:ring-1 focus:ring-cyan-500/50 font-data"
+            placeholder="Search domain, publisher name, or seller ID..."
+            class="w-full bg-[#080c14] border border-slate-700/80 rounded-md pl-9 pr-8 py-2 text-xs sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500/70 focus:ring-1 focus:ring-cyan-500/50 font-data"
           />
-          <button id="clear-search" class="hidden absolute right-2.5 top-2.5 text-xs text-slate-400 hover:text-slate-200" title="Clear">✕</button>
+          <button id="clear-search" class="hidden absolute right-2.5 top-2.5 text-xs text-slate-400 hover:text-slate-200" title="Clear search">✕</button>
         </div>
 
         <!-- Seller Type Filter -->
         <div class="lg:col-span-3">
           <select
             id="filter-type"
-            class="w-full bg-[#080c14] border border-slate-700/80 rounded px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500/70 font-data"
+            class="w-full bg-[#080c14] border border-slate-700/80 rounded-md px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500/70 font-data"
           >
             <option value="ALL">All Seller Types</option>
             <option value="PUBLISHER">PUBLISHER only</option>
@@ -111,61 +176,122 @@
           </select>
         </div>
 
-        <!-- Sort Filter -->
-        <div class="lg:col-span-4">
+        <!-- TLD Filter Dropdown -->
+        <div class="lg:col-span-3">
           <select
-            id="sort-select"
-            class="w-full bg-[#080c14] border border-slate-700/80 rounded px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500/70 font-data"
+            id="filter-tld"
+            class="w-full bg-[#080c14] border border-slate-700/80 rounded-md px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500/70 font-data"
           >
-            <option value="newest">Sort: First Seen (Newest First)</option>
-            <option value="oldest">Sort: First Seen (Oldest First)</option>
-            <option value="domain-asc">Sort: Domain (A → Z)</option>
-            <option value="domain-desc">Sort: Domain (Z → A)</option>
-            <option value="name-asc">Sort: Publisher Name (A → Z)</option>
+            <option value="ALL">All Domain Extensions (TLDs)</option>
+            <option value=".com">.com domains</option>
+            <option value=".org">.org domains</option>
+            <option value=".net">.net domains</option>
+            <option value=".co.uk">.co.uk domains</option>
+            <option value=".ca">.ca domains</option>
+            <option value=".de">.de domains</option>
+            <option value=".fr">.fr domains</option>
+            <option value=".io">.io domains</option>
+            <option value=".blog">.blog domains</option>
+            <option value="OTHER">Other extensions</option>
           </select>
         </div>
 
       </div>
 
       <!-- Secondary Toggles and Actions -->
-      <div class="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-slate-800/80 text-xs text-slate-400">
+      <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-800/80 text-xs text-slate-400">
         <div class="flex items-center gap-4 flex-wrap">
-          <label class="flex items-center gap-2 cursor-pointer select-none text-slate-300 hover:text-slate-100">
-            <input type="checkbox" id="toggle-removed" class="rounded bg-slate-900 border-slate-700 text-rose-500 focus:ring-0 focus:ring-offset-0" />
+          <label class="flex items-center gap-1.5 cursor-pointer select-none text-slate-300 hover:text-slate-100">
+            <input type="checkbox" id="toggle-removed" class="rounded bg-slate-900 border-slate-700 text-rose-500 focus:ring-0" />
             <span>Show Removed</span>
           </label>
-          <label class="flex items-center gap-2 cursor-pointer select-none text-slate-300 hover:text-slate-100">
-            <input type="checkbox" id="toggle-pretracking" class="rounded bg-slate-900 border-slate-700 text-amber-500 focus:ring-0 focus:ring-offset-0" />
+          <label class="flex items-center gap-1.5 cursor-pointer select-none text-slate-300 hover:text-slate-100">
+            <input type="checkbox" id="toggle-pretracking" class="rounded bg-slate-900 border-slate-700 text-amber-500 focus:ring-0" />
             <span>Show Pre-tracking Legacy</span>
           </label>
-          <label class="flex items-center gap-2 cursor-pointer select-none text-slate-300 hover:text-slate-100">
-            <input type="checkbox" id="toggle-newonly" class="rounded bg-slate-900 border-slate-700 text-cyan-500 focus:ring-0 focus:ring-offset-0" />
-            <span>Added in 2025-2026 Only</span>
+          <label class="flex items-center gap-1.5 cursor-pointer select-none text-slate-300 hover:text-slate-100">
+            <input type="checkbox" id="toggle-exact" class="rounded bg-slate-900 border-slate-700 text-cyan-500 focus:ring-0" />
+            <span>Exact Keyword Match</span>
           </label>
         </div>
 
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3 ml-auto flex-wrap">
           <span id="filtered-count" class="font-data text-slate-400">Loading data...</span>
-          <button id="export-btn" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded font-data text-xs flex items-center gap-1.5 transition">
-            <span>Export Filtered CSV</span>
+          
+          <!-- Density Toggle -->
+          <div class="flex items-center border border-slate-800 rounded bg-slate-900 p-0.5 text-[11px] font-data">
+            <button id="btn-density-comfy" class="px-2 py-0.5 rounded bg-slate-800 text-slate-200">Normal</button>
+            <button id="btn-density-compact" class="px-2 py-0.5 rounded text-slate-400 hover:text-slate-200">Compact</button>
+          </div>
+
+          <button id="export-btn" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded font-data text-xs flex items-center gap-1.5 transition shadow-sm">
+            <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            <span>Export CSV</span>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Data Table Container -->
+    <!-- Data Table Container with Sortable Columns -->
     <div class="bg-[#0c1220] border border-slate-800 rounded-lg overflow-hidden shadow">
       <div class="overflow-x-auto min-h-[380px]">
         <table class="w-full text-left border-collapse text-xs">
           <thead>
-            <tr class="border-b border-slate-800 bg-[#090e1a] text-slate-400 uppercase tracking-wider font-semibold font-data">
-              <th class="py-3 px-3 w-12 text-center">#</th>
-              <th class="py-3 px-4 min-w-[220px]">Domain</th>
-              <th class="py-3 px-4 min-w-[200px]">Publisher Name</th>
-              <th class="py-3 px-3 w-28">Type</th>
-              <th class="py-3 px-3 w-28 font-data">Seller ID</th>
-              <th class="py-3 px-3 w-32 font-data">First Seen</th>
-              <th class="py-3 px-3 w-28 font-data">Status</th>
+            <tr class="border-b border-slate-800 bg-[#090e1a] text-slate-400 uppercase tracking-wider font-semibold font-data select-none">
+              
+              <!-- Row Index Column -->
+              <th class="py-3 px-3 w-12 text-center text-slate-500">#</th>
+              
+              <!-- Sortable: Domain -->
+              <th class="py-3 px-4 min-w-[230px] cursor-pointer hover:text-slate-100 hover:bg-slate-800/40 transition group th-sortable" data-sort="domain">
+                <div class="flex items-center gap-1.5">
+                  <span>Domain</span>
+                  <span class="sort-icon text-slate-600 group-hover:text-slate-400" data-col="domain">↕</span>
+                </div>
+              </th>
+
+              <!-- Sortable: Publisher Name -->
+              <th class="py-3 px-4 min-w-[210px] cursor-pointer hover:text-slate-100 hover:bg-slate-800/40 transition group th-sortable" data-sort="name">
+                <div class="flex items-center gap-1.5">
+                  <span>Publisher Name</span>
+                  <span class="sort-icon text-slate-600 group-hover:text-slate-400" data-col="name">↕</span>
+                </div>
+              </th>
+
+              <!-- Sortable: Seller Type -->
+              <th class="py-3 px-3 w-28 cursor-pointer hover:text-slate-100 hover:bg-slate-800/40 transition group th-sortable" data-sort="type">
+                <div class="flex items-center gap-1.5">
+                  <span>Type</span>
+                  <span class="sort-icon text-slate-600 group-hover:text-slate-400" data-col="type">↕</span>
+                </div>
+              </th>
+
+              <!-- Sortable: Seller ID -->
+              <th class="py-3 px-3 w-28 font-data cursor-pointer hover:text-slate-100 hover:bg-slate-800/40 transition group th-sortable" data-sort="seller_id">
+                <div class="flex items-center gap-1.5">
+                  <span>Seller ID</span>
+                  <span class="sort-icon text-slate-600 group-hover:text-slate-400" data-col="seller_id">↕</span>
+                </div>
+              </th>
+
+              <!-- Sortable: First Seen -->
+              <th class="py-3 px-3 w-32 font-data cursor-pointer hover:text-slate-100 hover:bg-slate-800/40 transition group th-sortable" data-sort="first_seen">
+                <div class="flex items-center gap-1.5">
+                  <span>First Seen</span>
+                  <span class="sort-icon text-cyan-400" data-col="first_seen">↓</span>
+                </div>
+              </th>
+
+              <!-- Sortable: Status -->
+              <th class="py-3 px-3 w-28 font-data cursor-pointer hover:text-slate-100 hover:bg-slate-800/40 transition group th-sortable" data-sort="status">
+                <div class="flex items-center gap-1.5">
+                  <span>Status</span>
+                  <span class="sort-icon text-slate-600 group-hover:text-slate-400" data-col="status">↕</span>
+                </div>
+              </th>
+
             </tr>
           </thead>
           <tbody id="table-body" class="divide-y divide-slate-800/60 font-data">
@@ -181,24 +307,32 @@
 
       <!-- Pagination Toolbar -->
       <div class="border-t border-slate-800/90 px-4 py-3 bg-[#090e1a] flex flex-wrap items-center justify-between gap-3 text-xs font-data text-slate-400">
-        <div class="flex items-center gap-2">
-          <span>Rows per page:</span>
-          <span class="text-slate-200 font-bold">50</span>
-          <span class="text-slate-600">|</span>
+        <div class="flex items-center gap-3 flex-wrap">
+          <div class="flex items-center gap-1.5">
+            <span>Rows:</span>
+            <select id="select-pagesize" class="bg-slate-900 border border-slate-700 rounded px-1.5 py-0.5 text-slate-200 text-xs focus:outline-none">
+              <option value="25">25</option>
+              <option value="50" selected>50</option>
+              <option value="100">100</option>
+              <option value="250">250</option>
+              <option value="500">500</option>
+            </select>
+          </div>
+          <span class="text-slate-700 hidden sm:inline">|</span>
           <span id="page-summary">Page 1 of 1</span>
         </div>
 
         <div class="flex items-center gap-1">
-          <button id="btn-first" class="px-2.5 py-1 rounded bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed">« First</button>
-          <button id="btn-prev" class="px-2.5 py-1 rounded bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed">‹ Prev</button>
+          <button id="btn-first" class="px-2.5 py-1 rounded bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition">« First</button>
+          <button id="btn-prev" class="px-2.5 py-1 rounded bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition">‹ Prev</button>
           
           <div class="flex items-center gap-1 px-2">
             <span>Go to:</span>
             <input type="number" id="jump-page" min="1" class="w-14 bg-slate-900 border border-slate-700 text-center py-0.5 rounded text-slate-100 text-xs focus:outline-none" />
           </div>
 
-          <button id="btn-next" class="px-2.5 py-1 rounded bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed">Next ›</button>
-          <button id="btn-last" class="px-2.5 py-1 rounded bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed">Last »</button>
+          <button id="btn-next" class="px-2.5 py-1 rounded bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition">Next ›</button>
+          <button id="btn-last" class="px-2.5 py-1 rounded bg-slate-900 border border-slate-800 text-slate-300 hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition">Last »</button>
         </div>
       </div>
     </div>
@@ -206,28 +340,83 @@
     <!-- Details / Legend Card -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-normal">
       <div class="p-3.5 bg-[#0a0f1c] border border-slate-800/80 rounded-lg space-y-1">
-        <div class="font-semibold text-slate-300">Tracking & Timeline</div>
+        <div class="font-semibold text-slate-300 flex items-center gap-1.5">
+          <span class="text-cyan-400">💡</span> Click to Filter Networks
+        </div>
         <p class="text-slate-400 leading-relaxed">
-          First Seen records the exact date each domain was first verified on Journey. Daily automated cron jobs check for new joins and removals.
+          Click any <span class="text-cyan-300 font-semibold underline decoration-dotted">Publisher Name</span> or <span class="text-cyan-300 font-semibold underline decoration-dotted">Seller ID</span> in the table to instantly view all domains managed under that publisher entity.
         </p>
       </div>
 
       <div class="p-3.5 bg-[#0a0f1c] border border-slate-800/80 rounded-lg space-y-1">
-        <div class="font-semibold text-slate-300">Seller Types & Keys</div>
+        <div class="font-semibold text-slate-300 flex items-center gap-1.5">
+          <span class="text-cyan-400">↕</span> Header Sorting
+        </div>
         <p class="text-slate-400 leading-relaxed">
-          Indexed primarily by <code class="text-slate-200 font-data">seller_id</code> as published in the ads.txt-standard feed. Duplicates under different seller IDs are preserved.
+          Click any table column header to sort alphabetically, chronologically, or by seller type. Click again to reverse sort order.
         </p>
       </div>
 
       <div class="p-3.5 bg-[#0a0f1c] border border-slate-800/80 rounded-lg space-y-1">
-        <div class="font-semibold text-slate-300">Churn & Reactivation</div>
+        <div class="font-semibold text-slate-300 flex items-center gap-1.5">
+          <span class="text-emerald-400">⏱</span> Automated Feed Sync
+        </div>
         <p class="text-slate-400 leading-relaxed">
-          Sellers dropped from the feed are archived with <code class="text-rose-400 font-data">removed_on</code> and restored if they rejoin Journey.
+          The dataset is continuously synced against Mediavine Journey's official <code class="text-slate-300 font-data">sellers.json</code> feed with historical first-seen archives preserved.
         </p>
       </div>
     </div>
 
   </main>
+
+  <!-- Bulk Checker Modal -->
+  <div id="bulk-modal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4 animate-fadeIn">
+    <div class="bg-[#0e1526] border border-slate-700/80 rounded-xl max-w-2xl w-full p-5 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="h-7 w-7 rounded bg-cyan-950 border border-cyan-800 flex items-center justify-center text-cyan-400 text-sm font-bold">
+            🔍
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-100 text-sm">Bulk Domain Checker</h3>
+            <p class="text-xs text-slate-400">Paste up to 500 domain URLs to verify if they are on Mediavine Journey</p>
+          </div>
+        </div>
+        <button id="btn-close-modal" class="text-slate-400 hover:text-slate-100 text-base font-bold p-1">✕</button>
+      </div>
+
+      <div class="space-y-2">
+        <label class="block text-xs font-semibold text-slate-300 font-data">Paste Domains (one per line, or comma separated):</label>
+        <textarea
+          id="bulk-input"
+          rows="5"
+          placeholder="example.com&#10;recipesite.org&#10;https://anotherblog.co.uk"
+          class="w-full bg-[#080c14] border border-slate-700 rounded-md p-3 text-xs text-slate-100 font-data placeholder-slate-600 focus:outline-none focus:border-cyan-500"
+        ></textarea>
+      </div>
+
+      <div class="flex items-center justify-between gap-3">
+        <button id="btn-run-bulk" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-md text-xs font-bold font-data transition flex items-center gap-1.5 shadow">
+          <span>Check Domains Now</span>
+        </button>
+        <button id="btn-clear-bulk" class="text-xs text-slate-400 hover:text-slate-200">Clear</button>
+      </div>
+
+      <!-- Bulk Results Area -->
+      <div id="bulk-results-area" class="hidden space-y-2 pt-2 border-t border-slate-800 max-h-64 overflow-y-auto">
+        <div class="flex items-center justify-between text-xs font-data">
+          <span id="bulk-summary-text" class="text-slate-300 font-semibold">—</span>
+          <button id="btn-export-bulk" class="text-cyan-400 hover:underline text-xs">Export Found CSV</button>
+        </div>
+        <div id="bulk-results-list" class="space-y-1 text-xs font-data"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 bg-slate-900 border border-cyan-500/80 text-cyan-300 px-3.5 py-2 rounded-lg text-xs font-data shadow-xl opacity-0 pointer-events-none transition-all duration-300">
+    Copied to clipboard!
+  </div>
 
   <!-- Clean Footer -->
   <footer class="border-t border-slate-800/80 bg-[#070a12] mt-auto py-5 text-xs text-slate-500">
@@ -235,10 +424,10 @@
       <div>
         Data sourced from <a href="https://sellers.journeymv.com/sellers.json" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:underline font-data">sellers.journeymv.com/sellers.json</a>
       </div>
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-4 font-data text-[11px]">
         <span>Serverless Static Tracker</span>
         <span>•</span>
-        <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="hover:text-slate-300">GitHub Actions & Pages</a>
+        <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="hover:text-slate-300">GitHub Pages & Actions</a>
       </div>
     </div>
   </footer>
@@ -246,20 +435,28 @@
   <!-- Viewer Logic -->
   <script>
     (function () {
-      const PAGE_SIZE = 50;
+      let pageSize = 50;
       let rawData = [];
       let filteredData = [];
       let currentPage = 1;
       let totalPages = 1;
+      
+      // Sort state
+      let sortKey = "first_seen";
+      let sortDirection = "desc"; // 'asc' or 'desc'
+
+      // Entity filter state (by publisher name or seller ID)
+      let entityFilter = null; // { type: 'seller_id' | 'name', value: '...' }
+      let activePreset = "all";
 
       // DOM Elements
       const searchInput = document.getElementById("search-input");
       const clearSearchBtn = document.getElementById("clear-search");
       const filterType = document.getElementById("filter-type");
-      const sortSelect = document.getElementById("sort-select");
+      const filterTld = document.getElementById("filter-tld");
       const toggleRemoved = document.getElementById("toggle-removed");
       const togglePretracking = document.getElementById("toggle-pretracking");
-      const toggleNewOnly = document.getElementById("toggle-newonly");
+      const toggleExact = document.getElementById("toggle-exact");
       const tableBody = document.getElementById("table-body");
       const filteredCountEl = document.getElementById("filtered-count");
       const pageSummaryEl = document.getElementById("page-summary");
@@ -269,12 +466,52 @@
       const btnLast = document.getElementById("btn-last");
       const jumpPageInput = document.getElementById("jump-page");
       const exportBtn = document.getElementById("export-btn");
+      const selectPageSize = document.getElementById("select-pagesize");
+      
+      // Entity Filter banner
+      const entityBanner = document.getElementById("entity-filter-banner");
+      const entityLabel = document.getElementById("entity-filter-label");
+      const entityCountBadge = document.getElementById("entity-count-badge");
+      const btnClearEntity = document.getElementById("btn-clear-entity");
+
+      // Presets
+      const presetChips = document.querySelectorAll(".preset-chip");
+
+      // Density
+      const btnDensityComfy = document.getElementById("btn-density-comfy");
+      const btnDensityCompact = document.getElementById("btn-density-compact");
 
       // Metric elements
       const statActive = document.getElementById("stat-active");
       const statNew = document.getElementById("stat-new");
       const statTotal = document.getElementById("stat-total");
       const statUpdated = document.getElementById("stat-updated");
+      const statNewCard = document.getElementById("stat-new-card");
+
+      // Bulk Modal
+      const bulkModal = document.getElementById("bulk-modal");
+      const btnOpenChecker = document.getElementById("btn-open-checker");
+      const btnCloseModal = document.getElementById("btn-close-modal");
+      const bulkInput = document.getElementById("bulk-input");
+      const btnRunBulk = document.getElementById("btn-run-bulk");
+      const btnClearBulk = document.getElementById("btn-clear-bulk");
+      const bulkResultsArea = document.getElementById("bulk-results-area");
+      const bulkSummaryText = document.getElementById("bulk-summary-text");
+      const bulkResultsList = document.getElementById("bulk-results-list");
+      const btnExportBulk = document.getElementById("btn-export-bulk");
+      let lastBulkMatches = [];
+
+      // Toast
+      const toastEl = document.getElementById("toast");
+      function showToast(msg) {
+        toastEl.textContent = msg;
+        toastEl.classList.remove("opacity-0", "pointer-events-none");
+        toastEl.classList.add("opacity-100");
+        setTimeout(() => {
+          toastEl.classList.add("opacity-0", "pointer-events-none");
+          toastEl.classList.remove("opacity-100");
+        }, 2000);
+      }
 
       // Load CSV with robust fallback paths
       function init() {
@@ -303,6 +540,7 @@
                 rawData = results.data.filter(r => r.seller_id || r.domain);
                 if (rawData.length > 0) {
                   computeStats(rawData);
+                  parseUrlState();
                   applyFilters();
                   return;
                 }
@@ -354,35 +592,125 @@
         statUpdated.textContent = maxDate || new Date().toISOString().split("T")[0];
       }
 
+      // Read state from URL Hash
+      function parseUrlState() {
+        if (!window.location.hash) return;
+        try {
+          const hash = window.location.hash.substring(1);
+          const params = new URLSearchParams(hash);
+          
+          if (params.has("q")) searchInput.value = params.get("q");
+          if (params.has("type")) filterType.value = params.get("type");
+          if (params.has("tld")) filterTld.value = params.get("tld");
+          if (params.has("sort")) sortKey = params.get("sort");
+          if (params.has("dir")) sortDirection = params.get("dir");
+          if (params.has("entityType") && params.has("entityVal")) {
+            entityFilter = {
+              type: params.get("entityType"),
+              value: params.get("entityVal")
+            };
+          }
+          if (params.has("page")) currentPage = parseInt(params.get("page"), 10) || 1;
+        } catch (e) {
+          console.error("URL hash parse error:", e);
+        }
+      }
+
+      function syncUrlState() {
+        const params = new URLSearchParams();
+        const q = (searchInput.value || "").trim();
+        if (q) params.set("q", q);
+        if (filterType.value !== "ALL") params.set("type", filterType.value);
+        if (filterTld.value !== "ALL") params.set("tld", filterTld.value);
+        if (sortKey !== "first_seen") params.set("sort", sortKey);
+        if (sortDirection !== "desc") params.set("dir", sortDirection);
+        if (entityFilter) {
+          params.set("entityType", entityFilter.type);
+          params.set("entityVal", entityFilter.value);
+        }
+        if (currentPage > 1) params.set("page", currentPage);
+
+        const newHash = params.toString();
+        if (newHash) {
+          window.history.replaceState(null, "", `#${newHash}`);
+        } else {
+          window.history.replaceState(null, "", window.location.pathname);
+        }
+      }
+
+      // Count occurrences by publisher name to enable multi-domain filtering
+      function getPublisherCounts() {
+        const counts = {};
+        rawData.forEach(r => {
+          const name = (r.name || "").trim().toLowerCase();
+          if (name) counts[name] = (counts[name] || 0) + 1;
+        });
+        return counts;
+      }
+
       function applyFilters() {
         const query = (searchInput.value || "").trim().toLowerCase();
         const typeFilter = filterType.value;
-        const sortVal = sortSelect.value;
+        const tldFilter = filterTld.value;
         const showRemoved = toggleRemoved.checked;
         const showPretracking = togglePretracking.checked;
-        const newOnly = toggleNewOnly.checked;
+        const exactMatch = toggleExact.checked;
 
         clearSearchBtn.classList.toggle("hidden", !query);
+
+        // Handle entity banner
+        if (entityFilter) {
+          entityBanner.classList.remove("hidden");
+          const label = entityFilter.type === "seller_id" ? `Seller ID: "${entityFilter.value}"` : `Publisher: "${entityFilter.value}"`;
+          entityLabel.textContent = label;
+        } else {
+          entityBanner.classList.add("hidden");
+        }
+
+        const pubCounts = activePreset === "multi" ? getPublisherCounts() : null;
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+        const cutoff7d = oneWeekAgo.toISOString().split("T")[0];
 
         filteredData = rawData.filter(item => {
           const domain = (item.domain || "").toLowerCase();
           const name = (item.name || "").toLowerCase();
+          const sid = (item.seller_id || "").toLowerCase();
           const sellerType = (item.seller_type || "").toUpperCase();
           const removedOn = (item.removed_on || "").trim();
           const firstSeen = (item.first_seen || "").trim();
 
-          // Removed / Pretracking filter
-          if (removedOn === "pre-tracking") {
-            if (!showPretracking) return false;
-          } else if (removedOn !== "") {
-            if (!showRemoved) return false;
+          // Entity Filter Check
+          if (entityFilter) {
+            if (entityFilter.type === "seller_id") {
+              if ((item.seller_id || "").trim().toLowerCase() !== entityFilter.value.toLowerCase()) {
+                return false;
+              }
+            } else if (entityFilter.type === "name") {
+              if ((item.name || "").trim().toLowerCase() !== entityFilter.value.toLowerCase()) {
+                return false;
+              }
+            }
           }
 
-          // Added in 2025/2026 filter
-          if (newOnly) {
-            if (!firstSeen.startsWith("2025") && !firstSeen.startsWith("2026")) {
-              return false;
-            }
+          // Removed / Pretracking filter
+          if (removedOn === "pre-tracking") {
+            if (!showPretracking && activePreset !== "churned") return false;
+          } else if (removedOn !== "") {
+            if (!showRemoved && activePreset !== "churned") return false;
+          }
+
+          // Presets filter
+          if (activePreset === "new7d") {
+            if (firstSeen < cutoff7d || removedOn) return false;
+          } else if (activePreset === "y2026") {
+            if (!firstSeen.startsWith("2026") || removedOn) return false;
+          } else if (activePreset === "multi") {
+            if (!pubCounts || !name || (pubCounts[name] || 0) < 3) return false;
+          } else if (activePreset === "active") {
+            if (removedOn) return false;
+          } else if (activePreset === "churned") {
+            if (!removedOn) return false;
           }
 
           // Seller Type filter
@@ -390,52 +718,109 @@
             if (sellerType !== typeFilter) return false;
           }
 
+          // TLD filter
+          if (tldFilter !== "ALL") {
+            if (tldFilter === "OTHER") {
+              const known = [".com", ".org", ".net", ".co.uk", ".ca", ".de", ".fr", ".io", ".blog"];
+              if (known.some(ext => domain.endsWith(ext))) return false;
+            } else {
+              if (!domain.endsWith(tldFilter)) return false;
+            }
+          }
+
           // Search query filter
           if (query) {
-            if (!domain.includes(query) && !name.includes(query)) {
-              return false;
+            if (exactMatch) {
+              if (domain !== query && name !== query && sid !== query) return false;
+            } else {
+              if (!domain.includes(query) && !name.includes(query) && !sid.includes(query)) {
+                return false;
+              }
             }
           }
 
           return true;
         });
 
+        if (entityFilter) {
+          entityCountBadge.textContent = `(${filteredData.length.toLocaleString()} matching domains)`;
+        }
+
         // Sorting
         filteredData.sort((a, b) => {
-          const aFs = a.first_seen || "";
-          const bFs = b.first_seen || "";
-          const aDom = a.domain || "";
-          const bDom = b.domain || "";
-          const aName = a.name || "";
-          const bName = b.name || "";
+          let aVal = "";
+          let bVal = "";
 
-          switch (sortVal) {
-            case "newest":
-              return bFs.localeCompare(aFs) || aDom.localeCompare(bDom);
-            case "oldest":
-              return aFs.localeCompare(bFs) || aDom.localeCompare(bDom);
-            case "domain-asc":
-              return aDom.localeCompare(bDom);
-            case "domain-desc":
-              return bDom.localeCompare(aDom);
-            case "name-asc":
-              return aName.localeCompare(bName);
+          switch (sortKey) {
+            case "domain":
+              aVal = a.domain || "";
+              bVal = b.domain || "";
+              break;
+            case "name":
+              aVal = a.name || "";
+              bVal = b.name || "";
+              break;
+            case "type":
+              aVal = a.seller_type || "";
+              bVal = b.seller_type || "";
+              break;
+            case "seller_id":
+              // Try numeric sort if both are numbers
+              const aNum = parseInt(a.seller_id, 10);
+              const bNum = parseInt(b.seller_id, 10);
+              if (!isNaN(aNum) && !isNaN(bNum)) {
+                return sortDirection === "asc" ? aNum - bNum : bNum - aNum;
+              }
+              aVal = a.seller_id || "";
+              bVal = b.seller_id || "";
+              break;
+            case "first_seen":
+              aVal = a.first_seen || "";
+              bVal = b.first_seen || "";
+              break;
+            case "status":
+              aVal = a.removed_on || "active";
+              bVal = b.removed_on || "active";
+              break;
             default:
-              return bFs.localeCompare(aFs);
+              aVal = a.first_seen || "";
+              bVal = b.first_seen || "";
           }
+
+          const comp = aVal.localeCompare(bVal);
+          return sortDirection === "asc" ? comp : -comp;
         });
 
-        currentPage = 1;
-        totalPages = Math.max(1, Math.ceil(filteredData.length / PAGE_SIZE));
+        // Update header sort indicator visuals
+        updateHeaderIcons();
+
+        if (currentPage < 1) currentPage = 1;
+        totalPages = Math.max(1, Math.ceil(filteredData.length / pageSize));
+        if (currentPage > totalPages) currentPage = 1;
+        
+        syncUrlState();
         render();
       }
 
+      function updateHeaderIcons() {
+        document.querySelectorAll(".sort-icon").forEach(icon => {
+          const col = icon.getAttribute("data-col");
+          if (col === sortKey) {
+            icon.textContent = sortDirection === "asc" ? "↑" : "↓";
+            icon.className = "sort-icon text-cyan-400 font-bold";
+          } else {
+            icon.textContent = "↕";
+            icon.className = "sort-icon text-slate-600 group-hover:text-slate-400";
+          }
+        });
+      }
+
       function render() {
-        totalPages = Math.max(1, Math.ceil(filteredData.length / PAGE_SIZE));
+        totalPages = Math.max(1, Math.ceil(filteredData.length / pageSize));
         if (currentPage > totalPages) currentPage = totalPages;
         if (currentPage < 1) currentPage = 1;
 
-        filteredCountEl.textContent = `${filteredData.length.toLocaleString()} matching results`;
+        filteredCountEl.textContent = `${filteredData.length.toLocaleString()} matching records`;
         pageSummaryEl.textContent = `Page ${currentPage} of ${totalPages}`;
         jumpPageInput.value = currentPage;
         jumpPageInput.max = totalPages;
@@ -448,16 +833,19 @@
         if (filteredData.length === 0) {
           tableBody.innerHTML = `
             <tr>
-              <td colspan="7" class="py-12 text-center text-slate-500 font-sans">
-                No matching sellers found for the active search criteria.
+              <td colspan="7" class="py-16 text-center text-slate-500 font-sans space-y-2">
+                <div class="text-sm">No matching sellers found for the active search or filter criteria.</div>
+                <button id="btn-reset-filters" class="text-xs text-cyan-400 underline hover:text-cyan-300">Reset all filters</button>
               </td>
             </tr>
           `;
+          const resetBtn = document.getElementById("btn-reset-filters");
+          if (resetBtn) resetBtn.addEventListener("click", resetFilters);
           return;
         }
 
-        const startIdx = (currentPage - 1) * PAGE_SIZE;
-        const pageItems = filteredData.slice(startIdx, startIdx + PAGE_SIZE);
+        const startIdx = (currentPage - 1) * pageSize;
+        const pageItems = filteredData.slice(startIdx, startIdx + pageSize);
 
         const rowsHtml = pageItems.map((item, index) => {
           const rowNum = startIdx + index + 1;
@@ -466,9 +854,7 @@
           const sid = item.seller_id || "—";
           const sellerType = item.seller_type || "PUBLISHER";
           const firstSeen = item.first_seen || "—";
-          const lastSeen = item.last_seen || "";
           const removedOn = (item.removed_on || "").trim();
-          const dateSource = (item.date_source || "").trim();
 
           // Status indicators
           let badgeHtml = "";
@@ -476,7 +862,7 @@
 
           if (removedOn === "pre-tracking") {
             badgeHtml += '<span class="inline-block px-1.5 py-0.2 text-[10px] bg-amber-950/70 text-amber-300 border border-amber-800/60 rounded ml-1.5 font-sans font-medium">pre-tracking</span>';
-            statusBadge = '<span class="text-amber-400/90">Pre-tracking</span>';
+            statusBadge = '<span class="text-amber-400/90 font-medium">Pre-tracking</span>';
           } else if (removedOn) {
             badgeHtml += '<span class="inline-block px-1.5 py-0.2 text-[10px] bg-rose-950/70 text-rose-300 border border-rose-800/60 rounded ml-1.5 font-sans font-medium">removed</span>';
             statusBadge = `<span class="text-rose-400">Left ${removedOn}</span>`;
@@ -488,43 +874,80 @@
           const url = hasHttp ? domain : `https://${domain}`;
 
           return `
-            <tr class="hover:bg-slate-800/40 transition-colors group">
-              <td class="py-2.5 px-3 text-center text-slate-500 text-[11px]">${rowNum}</td>
+            <tr class="data-row hover:bg-slate-800/40 transition-colors group">
+              <td class="py-2.5 px-3 text-center text-slate-500 text-[11px] font-mono">${rowNum}</td>
               <td class="py-2.5 px-4 font-data">
                 <div class="flex items-center flex-wrap gap-y-1">
                   ${domain !== "—" ? `
-                    <a href="${url}" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:text-cyan-300 hover:underline inline-flex items-center gap-1 group-hover:text-cyan-300">
-                      <span>${escapeHtml(domain)}</span>
-                      <svg class="w-3 h-3 opacity-60 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                      </svg>
-                    </a>
+                    <div class="flex items-center gap-1.5">
+                      <a href="${url}" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:text-cyan-300 hover:underline inline-flex items-center gap-1 font-semibold group-hover:text-cyan-300">
+                        <span>${escapeHtml(domain)}</span>
+                        <svg class="w-3 h-3 opacity-60 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </a>
+                      <button class="btn-copy opacity-0 group-hover:opacity-100 text-slate-500 hover:text-cyan-300 p-0.5 rounded transition" data-copy="${escapeHtml(domain)}" title="Copy domain">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                      </button>
+                    </div>
                   ` : `<span class="text-slate-500">—</span>`}
                   ${badgeHtml}
                 </div>
               </td>
-              <td class="py-2.5 px-4 text-slate-300 font-sans text-xs truncate max-w-[260px]" title="${escapeHtml(name)}">
-                ${escapeHtml(name)}
+              <td class="py-2.5 px-4 text-slate-300 font-sans text-xs truncate max-w-[260px]">
+                ${name !== "—" ? `
+                  <button class="btn-filter-entity text-left hover:text-cyan-300 hover:underline decoration-dotted transition truncate max-w-[240px]" data-type="name" data-val="${escapeHtml(name)}" title="Click to filter by publisher: ${escapeHtml(name)}">
+                    ${escapeHtml(name)}
+                  </button>
+                ` : `<span class="text-slate-500">—</span>`}
               </td>
               <td class="py-2.5 px-3 font-data text-xs text-slate-400">
                 <span class="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800 text-[11px]">${escapeHtml(sellerType)}</span>
               </td>
-              <td class="py-2.5 px-3 font-data text-slate-400 text-xs truncate max-w-[120px]" title="${escapeHtml(sid)}">
-                ${escapeHtml(sid)}
+              <td class="py-2.5 px-3 font-data text-slate-400 text-xs truncate max-w-[120px]">
+                ${sid !== "—" ? `
+                  <button class="btn-filter-entity font-data text-left hover:text-cyan-300 hover:underline decoration-dotted text-slate-300 transition" data-type="seller_id" data-val="${escapeHtml(sid)}" title="Click to filter by Seller ID: ${escapeHtml(sid)}">
+                    ${escapeHtml(sid)}
+                  </button>
+                ` : `<span class="text-slate-500">—</span>`}
               </td>
               <td class="py-2.5 px-3 font-data text-slate-200 text-xs whitespace-nowrap">
                 ${escapeHtml(firstSeen)}
               </td>
               <td class="py-2.5 px-3 font-data text-[11px] whitespace-nowrap">
-                <div class="flex items-center gap-1.5">
-                  ${statusBadge}
-                </div>
+                ${statusBadge}
               </td>
             </tr>
           `;
         }).join("");
 
         tableBody.innerHTML = rowsHtml;
+
+        // Attach dynamic row event listeners
+        document.querySelectorAll(".btn-filter-entity").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const type = btn.getAttribute("data-type");
+            const val = btn.getAttribute("data-val");
+            if (type && val) {
+              entityFilter = { type, value: val };
+              activePreset = "all";
+              updatePresetUI();
+              currentPage = 1;
+              applyFilters();
+            }
+          });
+        });
+
+        document.querySelectorAll(".btn-copy").forEach(btn => {
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const text = btn.getAttribute("data-copy");
+            if (text) {
+              navigator.clipboard.writeText(text);
+              showToast(`Copied ${text}`);
+            }
+          });
+        });
       }
 
       function escapeHtml(str) {
@@ -535,6 +958,33 @@
           .replace(/>/g, "&gt;")
           .replace(/"/g, "&quot;")
           .replace(/'/g, "&#039;");
+      }
+
+      function resetFilters() {
+        searchInput.value = "";
+        filterType.value = "ALL";
+        filterTld.value = "ALL";
+        toggleRemoved.checked = false;
+        togglePretracking.checked = false;
+        toggleExact.checked = false;
+        entityFilter = null;
+        activePreset = "all";
+        updatePresetUI();
+        sortKey = "first_seen";
+        sortDirection = "desc";
+        currentPage = 1;
+        applyFilters();
+      }
+
+      function updatePresetUI() {
+        presetChips.forEach(chip => {
+          const p = chip.getAttribute("data-preset");
+          if (p === activePreset) {
+            chip.className = "preset-chip active px-2.5 py-1 rounded-md bg-cyan-950/80 border border-cyan-700/70 text-cyan-300 hover:bg-cyan-900/60 transition whitespace-nowrap font-medium";
+          } else {
+            chip.className = "preset-chip px-2.5 py-1 rounded-md bg-slate-900/90 border border-slate-800 text-slate-300 hover:text-cyan-300 hover:border-slate-700 transition whitespace-nowrap";
+          }
+        });
       }
 
       // Export CSV
@@ -551,35 +1001,186 @@
         document.body.removeChild(link);
       }
 
-      // Event Listeners
-      searchInput.addEventListener("input", applyFilters);
-      clearSearchBtn.addEventListener("click", () => {
-        searchInput.value = "";
+      // Header Sort Click Handling
+      document.querySelectorAll(".th-sortable").forEach(th => {
+        th.addEventListener("click", () => {
+          const col = th.getAttribute("data-sort");
+          if (!col) return;
+
+          if (sortKey === col) {
+            sortDirection = sortDirection === "asc" ? "desc" : "asc";
+          } else {
+            sortKey = col;
+            sortDirection = (col === "first_seen") ? "desc" : "asc";
+          }
+          applyFilters();
+        });
+      });
+
+      // Presets Click Handling
+      presetChips.forEach(chip => {
+        chip.addEventListener("click", () => {
+          const p = chip.getAttribute("data-preset");
+          if (p) {
+            activePreset = p;
+            updatePresetUI();
+            currentPage = 1;
+            applyFilters();
+          }
+        });
+      });
+
+      // Quick Card Metric Click
+      statNewCard.addEventListener("click", () => {
+        activePreset = "new7d";
+        updatePresetUI();
+        currentPage = 1;
         applyFilters();
       });
-      filterType.addEventListener("change", applyFilters);
-      sortSelect.addEventListener("change", applyFilters);
-      toggleRemoved.addEventListener("change", applyFilters);
-      togglePretracking.addEventListener("change", applyFilters);
-      toggleNewOnly.addEventListener("change", applyFilters);
+
+      // Entity Clear
+      btnClearEntity.addEventListener("click", () => {
+        entityFilter = null;
+        applyFilters();
+      });
+
+      // Density Controls
+      btnDensityComfy.addEventListener("click", () => {
+        document.body.classList.remove("density-compact");
+        btnDensityComfy.className = "px-2 py-0.5 rounded bg-slate-800 text-slate-200";
+        btnDensityCompact.className = "px-2 py-0.5 rounded text-slate-400 hover:text-slate-200";
+      });
+
+      btnDensityCompact.addEventListener("click", () => {
+        document.body.classList.add("density-compact");
+        btnDensityCompact.className = "px-2 py-0.5 rounded bg-slate-800 text-slate-200";
+        btnDensityComfy.className = "px-2 py-0.5 rounded text-slate-400 hover:text-slate-200";
+      });
+
+      // Page size selector
+      selectPageSize.addEventListener("change", (e) => {
+        pageSize = parseInt(e.target.value, 10) || 50;
+        currentPage = 1;
+        applyFilters();
+      });
+
+      // Search and Inputs
+      searchInput.addEventListener("input", () => {
+        currentPage = 1;
+        applyFilters();
+      });
+      clearSearchBtn.addEventListener("click", () => {
+        searchInput.value = "";
+        currentPage = 1;
+        applyFilters();
+      });
+      filterType.addEventListener("change", () => { currentPage = 1; applyFilters(); });
+      filterTld.addEventListener("change", () => { currentPage = 1; applyFilters(); });
+      toggleRemoved.addEventListener("change", () => { currentPage = 1; applyFilters(); });
+      togglePretracking.addEventListener("change", () => { currentPage = 1; applyFilters(); });
+      toggleExact.addEventListener("change", () => { currentPage = 1; applyFilters(); });
       exportBtn.addEventListener("click", exportFiltered);
 
-      btnFirst.addEventListener("click", () => { currentPage = 1; render(); });
-      btnPrev.addEventListener("click", () => { if (currentPage > 1) { currentPage--; render(); } });
-      btnNext.addEventListener("click", () => { if (currentPage < totalPages) { currentPage++; render(); } });
-      btnLast.addEventListener("click", () => { currentPage = totalPages; render(); });
+      // Pagination
+      btnFirst.addEventListener("click", () => { currentPage = 1; applyFilters(); });
+      btnPrev.addEventListener("click", () => { if (currentPage > 1) { currentPage--; applyFilters(); } });
+      btnNext.addEventListener("click", () => { if (currentPage < totalPages) { currentPage++; applyFilters(); } });
+      btnLast.addEventListener("click", () => { currentPage = totalPages; applyFilters(); });
 
       jumpPageInput.addEventListener("change", (e) => {
         const val = parseInt(e.target.value, 10);
         if (!isNaN(val) && val >= 1 && val <= totalPages) {
           currentPage = val;
-          render();
+          applyFilters();
         } else {
           e.target.value = currentPage;
         }
       });
 
-      // Start fetching
+      // Bulk Domain Checker Modal logic
+      btnOpenChecker.addEventListener("click", () => {
+        bulkModal.classList.remove("hidden");
+      });
+
+      btnCloseModal.addEventListener("click", () => {
+        bulkModal.classList.add("hidden");
+      });
+
+      bulkModal.addEventListener("click", (e) => {
+        if (e.target === bulkModal) bulkModal.classList.add("hidden");
+      });
+
+      btnClearBulk.addEventListener("click", () => {
+        bulkInput.value = "";
+        bulkResultsArea.classList.add("hidden");
+        bulkResultsList.innerHTML = "";
+      });
+
+      btnRunBulk.addEventListener("click", () => {
+        const text = bulkInput.value || "";
+        const domainsToCheck = text
+          .split(/[\n,]+/)
+          .map(d => d.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, ""))
+          .filter(Boolean);
+
+        if (domainsToCheck.length === 0) {
+          showToast("Please enter at least one domain.");
+          return;
+        }
+
+        const domainMap = new Map();
+        rawData.forEach(r => {
+          if (r.domain) domainMap.set(r.domain.toLowerCase(), r);
+        });
+
+        lastBulkMatches = [];
+        let foundCount = 0;
+        let notFoundCount = 0;
+
+        const resultsHtml = domainsToCheck.map(dom => {
+          const match = domainMap.get(dom);
+          if (match) {
+            foundCount++;
+            lastBulkMatches.push(match);
+            const isRemoved = (match.removed_on || "").trim();
+            const statusStr = isRemoved ? `Left ${match.removed_on}` : "Active";
+            const statusColor = isRemoved ? "text-rose-400" : "text-emerald-400";
+            return `
+              <div class="flex items-center justify-between p-2 rounded bg-slate-900 border border-slate-800">
+                <span class="text-cyan-300 font-semibold">${escapeHtml(dom)}</span>
+                <span class="text-xs ${statusColor}">${statusStr} (First seen: ${match.first_seen || "—"})</span>
+              </div>
+            `;
+          } else {
+            notFoundCount++;
+            return `
+              <div class="flex items-center justify-between p-2 rounded bg-slate-900/50 border border-slate-800/60 opacity-60">
+                <span class="text-slate-400">${escapeHtml(dom)}</span>
+                <span class="text-xs text-slate-500">Not found in Journey</span>
+              </div>
+            `;
+          }
+        }).join("");
+
+        bulkSummaryText.textContent = `Found ${foundCount} of ${domainsToCheck.length} domains`;
+        bulkResultsList.innerHTML = resultsHtml;
+        bulkResultsArea.classList.remove("hidden");
+      });
+
+      btnExportBulk.addEventListener("click", () => {
+        if (!lastBulkMatches || lastBulkMatches.length === 0) return;
+        const csvContent = Papa.unparse(lastBulkMatches);
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `bulk_journey_matches_${new Date().toISOString().split("T")[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+
+      // Initialize
       init();
     })();
   </script>
