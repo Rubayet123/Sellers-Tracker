@@ -1,15 +1,12 @@
 {
-  "timestamp_utc": "2026-09-02T11:35:26.085686+00:00",
-  "date": "2026-09-02",
-  "total_tracked": 12433,
+  "timestamp_utc": "2026-09-03T11:55:41.391182+00:00",
+  "date": "2026-09-03",
+  "total_tracked": 9446,
   "active_sellers": 9446,
-  "removed_sellers": 2987,
+  "removed_sellers": 0,
   "live_feed_count": 9448,
-  "new_today": 0,
+  "new_today": 9446,
   "removed_today": 0,
   "reactivated_today": 0,
-  "historical_matches": 9446,
-  "tracker_seeds": 2,
-  "legacy_pre_tracking": 2987,
-  "bootstrap": true
+  "changed": true
 }
