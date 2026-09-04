@@ -1,12 +1,12 @@
 {
-  "timestamp_utc": "2026-09-03T11:55:41.391182+00:00",
-  "date": "2026-09-03",
-  "total_tracked": 9446,
-  "active_sellers": 9446,
-  "removed_sellers": 0,
-  "live_feed_count": 9448,
-  "new_today": 9446,
-  "removed_today": 0,
+  "timestamp_utc": "2026-09-04T11:58:34.584935+00:00",
+  "date": "2026-09-04",
+  "total_tracked": 9450,
+  "active_sellers": 9448,
+  "removed_sellers": 2,
+  "live_feed_count": 9450,
+  "new_today": 4,
+  "removed_today": 2,
   "reactivated_today": 0,
   "changed": true
 }
