@@ -3,10 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mediavine Journey Sellers Tracker — Live Domain Index</title>
-  <meta name="description" content="Static, serverless domain directory and date-added tracker for Mediavine Journey publishers feed." />
+  <title>Mediavine Journey Sellers Tracker — Live Ecosystem & Premier Index</title>
+  <meta name="description" content="Multi-network serverless tracker and search directory for websites in Mediavine Journey, Mediavine Premier, and Raptive sellers.json feeds with graduation radar." />
+  <meta property="og:title" content="Mediavine Journey Sellers Tracker — Live Ecosystem & Premier Index" />
+  <meta property="og:description" content="Multi-network serverless tracker and search directory for websites in Mediavine Journey, Mediavine Premier, and Raptive sellers.json feeds with graduation radar." />
   
-  <!-- Tailwind CSS & Fonts & PapaParse -->
+  <!-- Tailwind CSS & PapaParse -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   
@@ -62,15 +64,18 @@
   <header class="border-b border-slate-800/80 bg-[#0b101d]/90 backdrop-blur sticky top-0 z-30">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
       <div class="flex items-center gap-3">
-        <div class="h-9 w-9 rounded-lg bg-gradient-to-br from-cyan-500/20 to-blue-600/10 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-data font-bold text-sm shadow-sm">
+        <div class="h-9 w-9 rounded-lg bg-gradient-to-br from-cyan-500/20 to-indigo-600/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-data font-bold text-sm shadow-sm">
           MV
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <h1 class="font-bold text-slate-100 text-base tracking-tight">Journey Sellers Tracker</h1>
-            <span class="px-2 py-0.5 text-[10px] font-data font-semibold bg-cyan-950/80 text-cyan-400 border border-cyan-800/60 rounded">LIVE FEED</span>
+            <h1 class="font-bold text-slate-100 text-base tracking-tight">Mediavine Sellers Ecosystem Tracker</h1>
+            <span class="px-2 py-0.5 text-[10px] font-data font-semibold bg-emerald-950/80 text-emerald-400 border border-emerald-800/60 rounded flex items-center gap-1">
+              <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              DUAL FEED
+            </span>
           </div>
-          <p class="text-xs text-slate-400 font-normal">Tracking verified websites & dates in Mediavine Journey sellers.json</p>
+          <p class="text-xs text-slate-400 font-normal">Tracking Journey & Mediavine Premier feeds with graduation detection</p>
         </div>
       </div>
 
@@ -80,53 +85,24 @@
           <span class="text-slate-400">Active Sites:</span>
           <span id="stat-active" class="text-emerald-400 font-bold">—</span>
         </div>
-        <div class="bg-slate-900/90 border border-slate-800/80 px-3 py-1.5 rounded-md flex items-center gap-2 shadow-sm cursor-pointer hover:border-cyan-500/50 transition" id="stat-new-card" title="Click to filter new in 7 days">
+        <div class="bg-slate-900/90 border border-slate-800/80 px-3 py-1.5 rounded-md flex items-center gap-2 shadow-sm">
           <span class="text-slate-400">New (7d):</span>
-          <span id="stat-new" class="text-cyan-400 font-bold">—</span>
+          <span id="stat-new7d" class="text-cyan-400 font-bold">—</span>
         </div>
         <div class="bg-slate-900/90 border border-slate-800/80 px-3 py-1.5 rounded-md flex items-center gap-2 shadow-sm">
           <span class="text-slate-400">Total Tracked:</span>
           <span id="stat-total" class="text-slate-200 font-bold">—</span>
         </div>
-        <div class="bg-slate-900/90 border border-slate-800/80 px-3 py-1.5 rounded-md flex items-center gap-2 shadow-sm hidden md:flex">
-          <span class="text-slate-400">Updated:</span>
-          <span id="stat-updated" class="text-slate-300 font-medium">—</span>
+        <div class="bg-slate-900/90 border border-slate-800/80 px-3 py-1.5 rounded-md flex items-center gap-2 shadow-sm cursor-pointer hover:border-amber-500/50 transition hidden md:flex" id="stat-grad-card" title="Click to view graduated publishers">
+          <span class="text-slate-400">Graduated:</span>
+          <span id="stat-graduated" class="text-amber-400 font-bold">—</span>
         </div>
       </div>
     </div>
   </header>
 
-  <!-- Main Content Layout -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-5 space-y-4">
-    
-    <!-- Quick Preset Chips Bar -->
-    <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs font-data no-scrollbar">
-      <span class="text-slate-500 text-[11px] uppercase tracking-wider font-semibold mr-1 shrink-0">Presets:</span>
-      <button class="preset-chip active px-2.5 py-1 rounded-md bg-cyan-950/80 border border-cyan-700/70 text-cyan-300 hover:bg-cyan-900/60 transition whitespace-nowrap" data-preset="all">
-        All Records
-      </button>
-      <button class="preset-chip px-2.5 py-1 rounded-md bg-slate-900/90 border border-slate-800 text-slate-300 hover:text-cyan-300 hover:border-slate-700 transition whitespace-nowrap" data-preset="new7d">
-        ⚡ Added Last 7 Days
-      </button>
-      <button class="preset-chip px-2.5 py-1 rounded-md bg-slate-900/90 border border-slate-800 text-slate-300 hover:text-cyan-300 hover:border-slate-700 transition whitespace-nowrap" data-preset="y2026">
-        📅 2026 Additions
-      </button>
-      <button class="preset-chip px-2.5 py-1 rounded-md bg-slate-900/90 border border-slate-800 text-slate-300 hover:text-cyan-300 hover:border-slate-700 transition whitespace-nowrap" data-preset="multi">
-        🏢 Multi-Domain Publishers (3+)
-      </button>
-      <button class="preset-chip px-2.5 py-1 rounded-md bg-slate-900/90 border border-slate-800 text-slate-300 hover:text-cyan-300 hover:border-slate-700 transition whitespace-nowrap" data-preset="active">
-        🟢 Active Sites Only
-      </button>
-      <button class="preset-chip px-2.5 py-1 rounded-md bg-slate-900/90 border border-slate-800 text-slate-300 hover:text-cyan-300 hover:border-slate-700 transition whitespace-nowrap" data-preset="churned">
-        🔴 Churned / Removed
-      </button>
-      <button id="btn-open-checker" class="ml-auto px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white transition whitespace-nowrap flex items-center gap-1.5 shrink-0">
-        <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-        </svg>
-        <span>Bulk Domain Checker</span>
-      </button>
-    </div>
+  <!-- Main Content -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-4 space-y-4">
 
     <!-- Active Entity Filter Bar (Shown when a publisher or seller ID is clicked) -->
     <div id="entity-filter-banner" class="hidden bg-cyan-950/40 border border-cyan-800/60 rounded-lg p-3 text-xs flex flex-wrap items-center justify-between gap-3 font-data shadow-sm animate-fadeIn">
@@ -138,7 +114,7 @@
         </span>
         <span id="entity-count-badge" class="text-slate-400 font-normal">(14 matching domains)</span>
       </div>
-      <button id="btn-clear-entity" class="px-2 py-1 rounded bg-cyan-900/60 hover:bg-cyan-800 border border-cyan-700 text-cyan-200 text-xs flex items-center gap-1 transition">
+      <button id="btn-clear-entity" class="px-2.5 py-1 rounded bg-cyan-900/60 hover:bg-cyan-800 border border-cyan-700 text-cyan-200 text-xs flex items-center gap-1 transition">
         <span>✕ Clear Entity Filter</span>
       </button>
     </div>
@@ -148,7 +124,7 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
         
         <!-- Search Input with Clear Button -->
-        <div class="lg:col-span-6 relative">
+        <div class="lg:col-span-4 relative">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -163,11 +139,41 @@
           <button id="clear-search" class="hidden absolute right-2.5 top-2.5 text-xs text-slate-400 hover:text-slate-200" title="Clear search">✕</button>
         </div>
 
+        <!-- Network Dropdown Filter -->
+        <div class="lg:col-span-2">
+          <select
+            id="filter-network"
+            class="w-full bg-[#080c14] border border-cyan-700/70 text-cyan-300 font-semibold rounded-md px-3 py-2 text-xs focus:outline-none focus:border-cyan-400 font-data cursor-pointer"
+          >
+            <option value="ALL">All Networks</option>
+            <option value="JOURNEY">Journey</option>
+            <option value="MEDIAVINE_CORE">Mediavine</option>
+            <option value="RAPTIVE">Raptive</option>
+            <option value="GRADUATED">Graduated</option>
+            <option value="CROSS_NETWORK">Cross-Network</option>
+          </select>
+        </div>
+
+        <!-- Status / Preset Filter Dropdown -->
+        <div class="lg:col-span-2">
+          <select
+            id="filter-preset"
+            class="w-full bg-[#080c14] border border-slate-700/80 rounded-md px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500/70 font-data cursor-pointer"
+          >
+            <option value="all">All Status Presets</option>
+            <option value="active">🟢 Active Sites Only</option>
+            <option value="new7d">⚡ Added Last 7 Days</option>
+            <option value="y2026">📅 2026 Additions</option>
+            <option value="multi">🏢 Multi-Domain (3+)</option>
+            <option value="churned">🔴 Churned / Removed</option>
+          </select>
+        </div>
+
         <!-- Seller Type Filter -->
-        <div class="lg:col-span-3">
+        <div class="lg:col-span-2">
           <select
             id="filter-type"
-            class="w-full bg-[#080c14] border border-slate-700/80 rounded-md px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500/70 font-data"
+            class="w-full bg-[#080c14] border border-slate-700/80 rounded-md px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500/70 font-data cursor-pointer"
           >
             <option value="ALL">All Seller Types</option>
             <option value="PUBLISHER">PUBLISHER only</option>
@@ -177,21 +183,21 @@
         </div>
 
         <!-- TLD Filter Dropdown -->
-        <div class="lg:col-span-3">
+        <div class="lg:col-span-2">
           <select
             id="filter-tld"
-            class="w-full bg-[#080c14] border border-slate-700/80 rounded-md px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500/70 font-data"
+            class="w-full bg-[#080c14] border border-slate-700/80 rounded-md px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500/70 font-data cursor-pointer"
           >
-            <option value="ALL">All Domain Extensions (TLDs)</option>
-            <option value=".com">.com domains</option>
-            <option value=".org">.org domains</option>
-            <option value=".net">.net domains</option>
-            <option value=".co.uk">.co.uk domains</option>
-            <option value=".ca">.ca domains</option>
-            <option value=".de">.de domains</option>
-            <option value=".fr">.fr domains</option>
-            <option value=".io">.io domains</option>
-            <option value=".blog">.blog domains</option>
+            <option value="ALL">All Extensions</option>
+            <option value=".com">.com</option>
+            <option value=".org">.org</option>
+            <option value=".net">.net</option>
+            <option value=".co.uk">.co.uk</option>
+            <option value=".ca">.ca</option>
+            <option value=".de">.de</option>
+            <option value=".fr">.fr</option>
+            <option value=".io">.io</option>
+            <option value=".blog">.blog</option>
             <option value="OTHER">Other extensions</option>
           </select>
         </div>
@@ -224,12 +230,49 @@
             <button id="btn-density-compact" class="px-2 py-0.5 rounded text-slate-400 hover:text-slate-200">Compact</button>
           </div>
 
-          <button id="export-btn" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded font-data text-xs flex items-center gap-1.5 transition shadow-sm">
+          <!-- Bulk Domain Checker Button -->
+          <button id="btn-open-checker" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white rounded font-data text-xs flex items-center gap-1.5 transition shadow-sm cursor-pointer">
             <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
-            <span>Export CSV</span>
+            <span>Bulk Domain Checker</span>
           </button>
+
+          <!-- Download Dropdown / Buttons -->
+          <div class="relative inline-block text-left" id="export-dropdown-container">
+            <div class="flex items-center">
+              <button id="export-btn" class="px-2.5 py-1 bg-cyan-700 hover:bg-cyan-600 text-white rounded-l font-data text-xs flex items-center gap-1.5 transition shadow-sm font-semibold">
+                <svg class="w-3.5 h-3.5 text-cyan-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                <span>Export View CSV</span>
+              </button>
+              <button id="export-toggle-btn" class="px-2 py-1 bg-cyan-800 hover:bg-cyan-700 text-white rounded-r border-l border-cyan-600 font-data text-xs transition">
+                ▼
+              </button>
+            </div>
+            
+            <!-- Export Submenu -->
+            <div id="export-menu" class="hidden absolute right-0 mt-1 w-56 bg-[#0c1220] border border-slate-700 rounded-md shadow-2xl z-40 py-1 font-data text-xs">
+              <button id="btn-export-view" class="w-full text-left px-3 py-2 text-slate-200 hover:bg-slate-800 flex items-center justify-between">
+                <span>Current Filtered View</span>
+                <span class="text-[10px] text-slate-500">CSV</span>
+              </button>
+              <a href="journey_sellers.csv" download="journey_sellers.csv" class="w-full text-left px-3 py-2 text-slate-200 hover:bg-slate-800 flex items-center justify-between block">
+                <span>Journey Only Full Feed</span>
+                <span class="text-[10px] text-cyan-400">12.4k CSV</span>
+              </a>
+              <a href="mediavine_sellers.csv" download="mediavine_sellers.csv" class="w-full text-left px-3 py-2 text-slate-200 hover:bg-slate-800 flex items-center justify-between block">
+                <span>Mediavine Premier Full</span>
+                <span class="text-[10px] text-indigo-400">9.1k CSV</span>
+              </a>
+              <a href="sellers.csv" download="sellers_ecosystem.csv" class="w-full text-left px-3 py-2 text-slate-200 hover:bg-slate-800 flex items-center justify-between block border-t border-slate-800">
+                <span>Unified Master Ecosystem</span>
+                <span class="text-[10px] text-emerald-400">20.6k CSV</span>
+              </a>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -245,7 +288,7 @@
               <th class="py-3 px-3 w-12 text-center text-slate-500">#</th>
               
               <!-- Sortable: Domain -->
-              <th class="py-3 px-4 min-w-[230px] cursor-pointer hover:text-slate-100 hover:bg-slate-800/40 transition group th-sortable" data-sort="domain">
+              <th class="py-3 px-4 min-w-[210px] cursor-pointer hover:text-slate-100 hover:bg-slate-800/40 transition group th-sortable" data-sort="domain">
                 <div class="flex items-center gap-1.5">
                   <span>Domain</span>
                   <span class="sort-icon text-slate-600 group-hover:text-slate-400" data-col="domain">↕</span>
@@ -253,15 +296,23 @@
               </th>
 
               <!-- Sortable: Publisher Name -->
-              <th class="py-3 px-4 min-w-[210px] cursor-pointer hover:text-slate-100 hover:bg-slate-800/40 transition group th-sortable" data-sort="name">
+              <th class="py-3 px-4 min-w-[200px] cursor-pointer hover:text-slate-100 hover:bg-slate-800/40 transition group th-sortable" data-sort="name">
                 <div class="flex items-center gap-1.5">
                   <span>Publisher Name</span>
                   <span class="sort-icon text-slate-600 group-hover:text-slate-400" data-col="name">↕</span>
                 </div>
               </th>
 
+              <!-- Sortable: Network Attribution -->
+              <th class="py-3 px-3 w-36 cursor-pointer hover:text-slate-100 hover:bg-slate-800/40 transition group th-sortable" data-sort="network">
+                <div class="flex items-center gap-1.5">
+                  <span>Network</span>
+                  <span class="sort-icon text-slate-600 group-hover:text-slate-400" data-col="network">↕</span>
+                </div>
+              </th>
+
               <!-- Sortable: Seller Type -->
-              <th class="py-3 px-3 w-28 cursor-pointer hover:text-slate-100 hover:bg-slate-800/40 transition group th-sortable" data-sort="type">
+              <th class="py-3 px-3 w-24 cursor-pointer hover:text-slate-100 hover:bg-slate-800/40 transition group th-sortable" data-sort="type">
                 <div class="flex items-center gap-1.5">
                   <span>Type</span>
                   <span class="sort-icon text-slate-600 group-hover:text-slate-400" data-col="type">↕</span>
@@ -277,10 +328,10 @@
               </th>
 
               <!-- Sortable: First Seen -->
-              <th class="py-3 px-3 w-32 font-data cursor-pointer hover:text-slate-100 hover:bg-slate-800/40 transition group th-sortable" data-sort="first_seen">
+              <th class="py-3 px-3 w-28 font-data cursor-pointer hover:text-slate-100 hover:bg-slate-800/40 transition group th-sortable" data-sort="first_seen">
                 <div class="flex items-center gap-1.5">
                   <span>First Seen</span>
-                  <span class="sort-icon text-cyan-400" data-col="first_seen">↓</span>
+                  <span class="sort-icon text-cyan-400 font-bold" data-col="first_seen">↓</span>
                 </div>
               </th>
 
@@ -296,9 +347,9 @@
           </thead>
           <tbody id="table-body" class="divide-y divide-slate-800/60 font-data">
             <tr>
-              <td colspan="7" class="py-16 text-center text-slate-500 font-sans">
+              <td colspan="8" class="py-16 text-center text-slate-500 font-sans">
                 <div class="inline-block animate-spin rounded-full h-6 w-6 border-2 border-cyan-500 border-t-transparent mb-2"></div>
-                <div>Fetching dataset (sellers.csv)...</div>
+                <div>Fetching Mediavine Ecosystem dataset (sellers.csv)...</div>
               </td>
             </tr>
           </tbody>
@@ -338,31 +389,40 @@
     </div>
 
     <!-- Details / Legend Card -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-normal">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs font-normal">
       <div class="p-3.5 bg-[#0a0f1c] border border-slate-800/80 rounded-lg space-y-1">
-        <div class="font-semibold text-slate-300 flex items-center gap-1.5">
-          <span class="text-cyan-400">💡</span> Click to Filter Networks
+        <div class="font-semibold text-cyan-300 flex items-center gap-1.5">
+          <span>🚀</span> Journey by Mediavine
         </div>
         <p class="text-slate-400 leading-relaxed">
-          Click any <span class="text-cyan-300 font-semibold underline decoration-dotted">Publisher Name</span> or <span class="text-cyan-300 font-semibold underline decoration-dotted">Seller ID</span> in the table to instantly view all domains managed under that publisher entity.
+          Mediavine's platform for growing creators with 10k–50k sessions. Historical seeds tracked from Aug 2024.
         </p>
       </div>
 
       <div class="p-3.5 bg-[#0a0f1c] border border-slate-800/80 rounded-lg space-y-1">
-        <div class="font-semibold text-slate-300 flex items-center gap-1.5">
-          <span class="text-cyan-400">↕</span> Header Sorting
+        <div class="font-semibold text-indigo-300 flex items-center gap-1.5">
+          <span>👑</span> Mediavine Premier
         </div>
         <p class="text-slate-400 leading-relaxed">
-          Click any table column header to sort alphabetically, chronologically, or by seller type. Click again to reverse sort order.
+          Mediavine's flagship enterprise ad management network for publishers with 50,000+ monthly sessions.
         </p>
       </div>
 
       <div class="p-3.5 bg-[#0a0f1c] border border-slate-800/80 rounded-lg space-y-1">
-        <div class="font-semibold text-slate-300 flex items-center gap-1.5">
-          <span class="text-emerald-400">⏱</span> Automated Feed Sync
+        <div class="font-semibold text-amber-300 flex items-center gap-1.5">
+          <span>🎓</span> Graduation Radar
         </div>
         <p class="text-slate-400 leading-relaxed">
-          The dataset is continuously synced against Mediavine Journey's official <code class="text-slate-300 font-data">sellers.json</code> feed with historical first-seen archives preserved.
+          Detects publishers that reached traffic thresholds on Journey and successfully graduated into Mediavine Premier.
+        </p>
+      </div>
+
+      <div class="p-3.5 bg-[#0a0f1c] border border-slate-800/80 rounded-lg space-y-1">
+        <div class="font-semibold text-emerald-300 flex items-center gap-1.5">
+          <span>⚡</span> Live Multi-Feed Sync
+        </div>
+        <p class="text-slate-400 leading-relaxed">
+          Daily cron jobs sync both official <code class="text-slate-300 font-data">sellers.json</code> feeds and preserve domain records.
         </p>
       </div>
     </div>
@@ -378,8 +438,8 @@
             🔍
           </div>
           <div>
-            <h3 class="font-bold text-slate-100 text-sm">Bulk Domain Checker</h3>
-            <p class="text-xs text-slate-400">Paste up to 500 domain URLs to verify if they are on Mediavine Journey</p>
+            <h3 class="font-bold text-slate-100 text-sm">Ecosystem Bulk Domain Checker</h3>
+            <p class="text-xs text-slate-400">Paste up to 500 domain URLs to verify if they are in Journey, Premier, or Graduated</p>
           </div>
         </div>
         <button id="btn-close-modal" class="text-slate-400 hover:text-slate-100 text-base font-bold p-1">✕</button>
@@ -397,7 +457,7 @@
 
       <div class="flex items-center justify-between gap-3">
         <button id="btn-run-bulk" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-md text-xs font-bold font-data transition flex items-center gap-1.5 shadow">
-          <span>Check Domains Now</span>
+          <span>Check Domains Across Ecosystem</span>
         </button>
         <button id="btn-clear-bulk" class="text-xs text-slate-400 hover:text-slate-200">Clear</button>
       </div>
@@ -421,11 +481,14 @@
   <!-- Clean Footer -->
   <footer class="border-t border-slate-800/80 bg-[#070a12] mt-auto py-5 text-xs text-slate-500">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 font-sans">
-      <div>
-        Data sourced from <a href="https://sellers.journeymv.com/sellers.json" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:underline font-data">sellers.journeymv.com/sellers.json</a>
+      <div class="flex items-center gap-2 flex-wrap">
+        <span>Feeds:</span>
+        <a href="https://sellers.journeymv.com/sellers.json" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:underline font-data">sellers.journeymv.com</a>
+        <span>•</span>
+        <a href="https://www.mediavine.com/sellers.json" target="_blank" rel="noopener noreferrer" class="text-indigo-400 hover:underline font-data">mediavine.com</a>
       </div>
       <div class="flex items-center gap-4 font-data text-[11px]">
-        <span>Serverless Static Tracker</span>
+        <span>Serverless Multi-Feed Tracker</span>
         <span>•</span>
         <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="hover:text-slate-300">GitHub Pages & Actions</a>
       </div>
@@ -441,6 +504,9 @@
       let currentPage = 1;
       let totalPages = 1;
       
+      // Network filter tab: 'ALL' | 'JOURNEY' | 'MEDIAVINE_CORE' | 'GRADUATED'
+      let activeNetwork = "ALL";
+
       // Sort state
       let sortKey = "first_seen";
       let sortDirection = "desc"; // 'asc' or 'desc'
@@ -452,6 +518,8 @@
       // DOM Elements
       const searchInput = document.getElementById("search-input");
       const clearSearchBtn = document.getElementById("clear-search");
+      const filterNetwork = document.getElementById("filter-network");
+      const filterPreset = document.getElementById("filter-preset");
       const filterType = document.getElementById("filter-type");
       const filterTld = document.getElementById("filter-tld");
       const toggleRemoved = document.getElementById("toggle-removed");
@@ -466,6 +534,9 @@
       const btnLast = document.getElementById("btn-last");
       const jumpPageInput = document.getElementById("jump-page");
       const exportBtn = document.getElementById("export-btn");
+      const exportToggleBtn = document.getElementById("export-toggle-btn");
+      const exportMenu = document.getElementById("export-menu");
+      const btnExportView = document.getElementById("btn-export-view");
       const selectPageSize = document.getElementById("select-pagesize");
       
       // Entity Filter banner
@@ -474,8 +545,15 @@
       const entityCountBadge = document.getElementById("entity-count-badge");
       const btnClearEntity = document.getElementById("btn-clear-entity");
 
-      // Presets
+      // Tabs & Presets
+      const networkTabs = document.querySelectorAll(".network-tab");
       const presetChips = document.querySelectorAll(".preset-chip");
+
+      // Tab Counts
+      const tabCountAll = document.getElementById("tab-count-all");
+      const tabCountJourney = document.getElementById("tab-count-journey");
+      const tabCountCore = document.getElementById("tab-count-core");
+      const tabCountGrad = document.getElementById("tab-count-grad");
 
       // Density
       const btnDensityComfy = document.getElementById("btn-density-comfy");
@@ -483,10 +561,10 @@
 
       // Metric elements
       const statActive = document.getElementById("stat-active");
-      const statNew = document.getElementById("stat-new");
+      const statNew7d = document.getElementById("stat-new7d");
+      const statGraduated = document.getElementById("stat-graduated");
       const statTotal = document.getElementById("stat-total");
-      const statUpdated = document.getElementById("stat-updated");
-      const statNewCard = document.getElementById("stat-new-card");
+      const statGradCard = document.getElementById("stat-grad-card");
 
       // Bulk Modal
       const bulkModal = document.getElementById("bulk-modal");
@@ -537,7 +615,7 @@
             skipEmptyLines: true,
             complete: function (results) {
               if (results && results.data && results.data.length > 0) {
-                rawData = results.data.filter(r => r.seller_id || r.domain);
+                rawData = results.data.filter(r => r.domain || r.seller_id);
                 if (rawData.length > 0) {
                   computeStats(rawData);
                   parseUrlState();
@@ -559,8 +637,8 @@
       function showError() {
         tableBody.innerHTML = `
           <tr>
-            <td colspan="7" class="py-12 text-center text-rose-400 font-sans">
-              Failed to load sellers.csv. Make sure the dataset has been generated or seeded.
+            <td colspan="8" class="py-12 text-center text-rose-400 font-sans">
+              Failed to load sellers.csv dataset. Make sure data/sellers.csv is available.
             </td>
           </tr>
         `;
@@ -568,28 +646,63 @@
       }
 
       function computeStats(data) {
-        let active = 0;
-        let recentNew = 0;
-        let maxDate = "";
+        let journeyCount = 0;
+        let coreCount = 0;
+        let gradCount = 0;
 
+        // Global network counts for dropdown
+        data.forEach(r => {
+          const net = (r.network || "JOURNEY").toUpperCase();
+          if (net === "JOURNEY" || net === "BOTH") journeyCount++;
+          if (net === "MEDIAVINE_CORE" || net === "BOTH" || net === "GRADUATED") coreCount++;
+          if (net === "GRADUATED") gradCount++;
+        });
+
+        if (filterNetwork && filterNetwork.options && filterNetwork.options.length >= 4) {
+          filterNetwork.options[0].text = `All Networks (${data.length.toLocaleString()})`;
+          filterNetwork.options[1].text = `Journey (${journeyCount.toLocaleString()})`;
+          filterNetwork.options[2].text = `Mediavine (${coreCount.toLocaleString()})`;
+          filterNetwork.options[3].text = `Graduated (${gradCount.toLocaleString()})`;
+        }
+
+        // Compute metrics dynamically scoped to activeNetwork
         const oneWeekAgo = new Date();
         oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-        const cutoffStr = oneWeekAgo.toISOString().split("T")[0];
+        const cutoff7d = oneWeekAgo.toISOString().split("T")[0];
+
+        let scopedActive = 0;
+        let scopedTotal = 0;
+        let scopedNew7d = 0;
 
         data.forEach(r => {
+          const net = (r.network || "JOURNEY").toUpperCase();
           const removed = (r.removed_on || "").trim();
-          if (!removed) active++;
           const fs = (r.first_seen || "").trim();
-          if (fs > maxDate) maxDate = fs;
-          if (fs >= cutoffStr && !removed) {
-            recentNew++;
+
+          let matchesNetwork = false;
+          if (activeNetwork === "JOURNEY") {
+            matchesNetwork = (net === "JOURNEY" || net === "BOTH");
+          } else if (activeNetwork === "MEDIAVINE_CORE") {
+            matchesNetwork = (net === "MEDIAVINE_CORE" || net === "BOTH" || net === "GRADUATED");
+          } else if (activeNetwork === "GRADUATED") {
+            matchesNetwork = (net === "GRADUATED");
+          } else {
+            matchesNetwork = true;
+          }
+
+          if (matchesNetwork) {
+            scopedTotal++;
+            if (!removed) {
+              scopedActive++;
+              if (fs >= cutoff7d) scopedNew7d++;
+            }
           }
         });
 
-        statActive.textContent = active.toLocaleString();
-        statNew.textContent = `+${recentNew.toLocaleString()}`;
-        statTotal.textContent = data.length.toLocaleString();
-        statUpdated.textContent = maxDate || new Date().toISOString().split("T")[0];
+        if (statActive) statActive.textContent = scopedActive.toLocaleString();
+        if (statNew7d) statNew7d.textContent = `+${scopedNew7d.toLocaleString()}`;
+        if (statTotal) statTotal.textContent = scopedTotal.toLocaleString();
+        if (statGraduated) statGraduated.textContent = `🎓 ${gradCount.toLocaleString()}`;
       }
 
       // Read state from URL Hash
@@ -599,6 +712,14 @@
           const hash = window.location.hash.substring(1);
           const params = new URLSearchParams(hash);
           
+          if (params.has("net")) {
+            activeNetwork = params.get("net");
+            if (filterNetwork) filterNetwork.value = activeNetwork;
+          }
+          if (params.has("preset")) {
+            activePreset = params.get("preset");
+            if (filterPreset) filterPreset.value = activePreset;
+          }
           if (params.has("q")) searchInput.value = params.get("q");
           if (params.has("type")) filterType.value = params.get("type");
           if (params.has("tld")) filterTld.value = params.get("tld");
@@ -618,6 +739,8 @@
 
       function syncUrlState() {
         const params = new URLSearchParams();
+        if (activeNetwork !== "ALL") params.set("net", activeNetwork);
+        if (activePreset !== "all") params.set("preset", activePreset);
         const q = (searchInput.value || "").trim();
         if (q) params.set("q", q);
         if (filterType.value !== "ALL") params.set("type", filterType.value);
@@ -649,6 +772,8 @@
       }
 
       function applyFilters() {
+        computeStats(rawData);
+
         const query = (searchInput.value || "").trim().toLowerCase();
         const typeFilter = filterType.value;
         const tldFilter = filterTld.value;
@@ -676,14 +801,32 @@
           const domain = (item.domain || "").toLowerCase();
           const name = (item.name || "").toLowerCase();
           const sid = (item.seller_id || "").toLowerCase();
+          const jsid = (item.journey_seller_id || "").toLowerCase();
+          const msid = (item.mediavine_seller_id || "").toLowerCase();
+          const rsid = (item.raptive_seller_id || "").toLowerCase();
           const sellerType = (item.seller_type || "").toUpperCase();
           const removedOn = (item.removed_on || "").trim();
           const firstSeen = (item.first_seen || "").trim();
+          const net = (item.network || "JOURNEY").toUpperCase();
+
+          // Network Tab Filter
+          if (activeNetwork === "JOURNEY") {
+            if (!net.includes("JOURNEY") && net !== "BOTH") return false;
+          } else if (activeNetwork === "MEDIAVINE_CORE") {
+            if (!net.includes("MEDIAVINE_CORE") && net !== "BOTH" && net !== "GRADUATED") return false;
+          } else if (activeNetwork === "RAPTIVE") {
+            if (!net.includes("RAPTIVE") && !net.includes("ADTHRIVE")) return false;
+          } else if (activeNetwork === "GRADUATED") {
+            if (net !== "GRADUATED") return false;
+          } else if (activeNetwork === "CROSS_NETWORK") {
+            if (net !== "BOTH" && !net.includes(",")) return false;
+          }
 
           // Entity Filter Check
           if (entityFilter) {
             if (entityFilter.type === "seller_id") {
-              if ((item.seller_id || "").trim().toLowerCase() !== entityFilter.value.toLowerCase()) {
+              const targetSid = entityFilter.value.toLowerCase();
+              if (sid !== targetSid && jsid !== targetSid && msid !== targetSid && rsid !== targetSid) {
                 return false;
               }
             } else if (entityFilter.type === "name") {
@@ -731,9 +874,9 @@
           // Search query filter
           if (query) {
             if (exactMatch) {
-              if (domain !== query && name !== query && sid !== query) return false;
+              if (domain !== query && name !== query && sid !== query && jsid !== query && msid !== query && rsid !== query) return false;
             } else {
-              if (!domain.includes(query) && !name.includes(query) && !sid.includes(query)) {
+              if (!domain.includes(query) && !name.includes(query) && !sid.includes(query) && !jsid.includes(query) && !msid.includes(query) && !rsid.includes(query)) {
                 return false;
               }
             }
@@ -760,12 +903,15 @@
               aVal = a.name || "";
               bVal = b.name || "";
               break;
+            case "network":
+              aVal = a.network || "";
+              bVal = b.network || "";
+              break;
             case "type":
               aVal = a.seller_type || "";
               bVal = b.seller_type || "";
               break;
             case "seller_id":
-              // Try numeric sort if both are numbers
               const aNum = parseInt(a.seller_id, 10);
               const bNum = parseInt(b.seller_id, 10);
               if (!isNaN(aNum) && !isNaN(bNum)) {
@@ -833,7 +979,7 @@
         if (filteredData.length === 0) {
           tableBody.innerHTML = `
             <tr>
-              <td colspan="7" class="py-16 text-center text-slate-500 font-sans space-y-2">
+              <td colspan="8" class="py-16 text-center text-slate-500 font-sans space-y-2">
                 <div class="text-sm">No matching sellers found for the active search or filter criteria.</div>
                 <button id="btn-reset-filters" class="text-xs text-cyan-400 underline hover:text-cyan-300">Reset all filters</button>
               </td>
@@ -851,10 +997,32 @@
           const rowNum = startIdx + index + 1;
           const domain = item.domain || "—";
           const name = item.name || "—";
-          const sid = item.seller_id || "—";
+          const sid = item.seller_id || item.journey_seller_id || item.mediavine_seller_id || item.raptive_seller_id || "—";
           const sellerType = item.seller_type || "PUBLISHER";
           const firstSeen = item.first_seen || "—";
           const removedOn = (item.removed_on || "").trim();
+          const net = (item.network || "JOURNEY").toUpperCase();
+
+          // Network Badge
+          let networkBadge = "";
+          if (net === "GRADUATED") {
+            networkBadge = '<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] bg-amber-950/80 text-amber-300 border border-amber-800/80 font-semibold" title="Graduated: Journey → Mediavine Premier">Graduated</span>';
+          } else {
+            const chips = [];
+            if (net.includes("JOURNEY") || net === "BOTH") {
+              chips.push('<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] bg-cyan-950/80 text-cyan-300 border border-cyan-800/80 font-medium" title="Active on Journey">Journey</span>');
+            }
+            if (net.includes("MEDIAVINE_CORE") || net === "BOTH") {
+              chips.push('<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] bg-indigo-950/80 text-indigo-300 border border-indigo-800/80 font-medium" title="Active on Mediavine Premier">Mediavine</span>');
+            }
+            if (net.includes("RAPTIVE") || net.includes("ADTHRIVE")) {
+              chips.push('<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] bg-purple-950/80 text-purple-300 border border-purple-800/80 font-medium" title="Active on Raptive (AdThrive)">Raptive</span>');
+            }
+            if (chips.length === 0) {
+              chips.push(`<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] bg-slate-800 text-slate-300 border border-slate-700 font-medium">${net || "Journey"}</span>`);
+            }
+            networkBadge = `<div class="inline-flex items-center gap-1 flex-wrap">${chips.join("")}</div>`;
+          }
 
           // Status indicators
           let badgeHtml = "";
@@ -894,12 +1062,15 @@
                   ${badgeHtml}
                 </div>
               </td>
-              <td class="py-2.5 px-4 text-slate-300 font-sans text-xs truncate max-w-[260px]">
+              <td class="py-2.5 px-4 text-slate-300 font-sans text-xs truncate max-w-[240px]">
                 ${name !== "—" ? `
-                  <button class="btn-filter-entity text-left hover:text-cyan-300 hover:underline decoration-dotted transition truncate max-w-[240px]" data-type="name" data-val="${escapeHtml(name)}" title="Click to filter by publisher: ${escapeHtml(name)}">
+                  <button class="btn-filter-entity text-left hover:text-cyan-300 hover:underline decoration-dotted transition truncate max-w-[220px]" data-type="name" data-val="${escapeHtml(name)}" title="Click to filter by publisher: ${escapeHtml(name)}">
                     ${escapeHtml(name)}
                   </button>
                 ` : `<span class="text-slate-500">—</span>`}
+              </td>
+              <td class="py-2.5 px-3 font-data text-xs whitespace-nowrap">
+                ${networkBadge}
               </td>
               <td class="py-2.5 px-3 font-data text-xs text-slate-400">
                 <span class="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800 text-[11px]">${escapeHtml(sellerType)}</span>
@@ -962,6 +1133,8 @@
 
       function resetFilters() {
         searchInput.value = "";
+        if (filterNetwork) filterNetwork.value = "ALL";
+        if (filterPreset) filterPreset.value = "all";
         filterType.value = "ALL";
         filterTld.value = "ALL";
         toggleRemoved.checked = false;
@@ -969,7 +1142,7 @@
         toggleExact.checked = false;
         entityFilter = null;
         activePreset = "all";
-        updatePresetUI();
+        activeNetwork = "ALL";
         sortKey = "first_seen";
         sortDirection = "desc";
         currentPage = 1;
@@ -977,14 +1150,9 @@
       }
 
       function updatePresetUI() {
-        presetChips.forEach(chip => {
-          const p = chip.getAttribute("data-preset");
-          if (p === activePreset) {
-            chip.className = "preset-chip active px-2.5 py-1 rounded-md bg-cyan-950/80 border border-cyan-700/70 text-cyan-300 hover:bg-cyan-900/60 transition whitespace-nowrap font-medium";
-          } else {
-            chip.className = "preset-chip px-2.5 py-1 rounded-md bg-slate-900/90 border border-slate-800 text-slate-300 hover:text-cyan-300 hover:border-slate-700 transition whitespace-nowrap";
-          }
-        });
+        if (filterPreset) {
+          filterPreset.value = activePreset;
+        }
       }
 
       // Export CSV
@@ -995,10 +1163,30 @@
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.setAttribute("href", url);
-        link.setAttribute("download", `journey_sellers_export_${new Date().toISOString().split("T")[0]}.csv`);
+        link.setAttribute("download", `mediavine_ecosystem_export_${activeNetwork.toLowerCase()}_${new Date().toISOString().split("T")[0]}.csv`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+      }
+
+      // Network Dropdown Change
+      if (filterNetwork) {
+        filterNetwork.addEventListener("change", (e) => {
+          activeNetwork = e.target.value;
+          currentPage = 1;
+          syncUrlState();
+          applyFilters();
+        });
+      }
+
+      // Preset / Status Dropdown Change
+      if (filterPreset) {
+        filterPreset.addEventListener("change", (e) => {
+          activePreset = e.target.value;
+          currentPage = 1;
+          syncUrlState();
+          applyFilters();
+        });
       }
 
       // Header Sort Click Handling
@@ -1017,24 +1205,12 @@
         });
       });
 
-      // Presets Click Handling
-      presetChips.forEach(chip => {
-        chip.addEventListener("click", () => {
-          const p = chip.getAttribute("data-preset");
-          if (p) {
-            activePreset = p;
-            updatePresetUI();
-            currentPage = 1;
-            applyFilters();
-          }
-        });
-      });
-
-      // Quick Card Metric Click
-      statNewCard.addEventListener("click", () => {
-        activePreset = "new7d";
-        updatePresetUI();
+      // Graduated card click
+      statGradCard.addEventListener("click", () => {
+        activeNetwork = "GRADUATED";
+        if (filterNetwork) filterNetwork.value = "GRADUATED";
         currentPage = 1;
+        syncUrlState();
         applyFilters();
       });
 
@@ -1044,60 +1220,125 @@
         applyFilters();
       });
 
+      // Export dropdown toggle
+      exportToggleBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        exportMenu.classList.toggle("hidden");
+      });
+      document.addEventListener("click", () => {
+        exportMenu.classList.add("hidden");
+      });
+
+      exportBtn.addEventListener("click", exportFiltered);
+      btnExportView.addEventListener("click", () => {
+        exportMenu.classList.add("hidden");
+        exportFiltered();
+      });
+
       // Density Controls
       btnDensityComfy.addEventListener("click", () => {
         document.body.classList.remove("density-compact");
         btnDensityComfy.className = "px-2 py-0.5 rounded bg-slate-800 text-slate-200";
         btnDensityCompact.className = "px-2 py-0.5 rounded text-slate-400 hover:text-slate-200";
       });
-
       btnDensityCompact.addEventListener("click", () => {
         document.body.classList.add("density-compact");
         btnDensityCompact.className = "px-2 py-0.5 rounded bg-slate-800 text-slate-200";
         btnDensityComfy.className = "px-2 py-0.5 rounded text-slate-400 hover:text-slate-200";
       });
 
-      // Page size selector
-      selectPageSize.addEventListener("change", (e) => {
-        pageSize = parseInt(e.target.value, 10) || 50;
-        currentPage = 1;
-        applyFilters();
+      // Event listeners for inputs
+      let debounceTimer = null;
+      searchInput.addEventListener("input", () => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+          currentPage = 1;
+          applyFilters();
+        }, 150);
       });
 
-      // Search and Inputs
-      searchInput.addEventListener("input", () => {
-        currentPage = 1;
-        applyFilters();
-      });
       clearSearchBtn.addEventListener("click", () => {
         searchInput.value = "";
         currentPage = 1;
         applyFilters();
       });
-      filterType.addEventListener("change", () => { currentPage = 1; applyFilters(); });
-      filterTld.addEventListener("change", () => { currentPage = 1; applyFilters(); });
-      toggleRemoved.addEventListener("change", () => { currentPage = 1; applyFilters(); });
-      togglePretracking.addEventListener("change", () => { currentPage = 1; applyFilters(); });
-      toggleExact.addEventListener("change", () => { currentPage = 1; applyFilters(); });
-      exportBtn.addEventListener("click", exportFiltered);
 
-      // Pagination
-      btnFirst.addEventListener("click", () => { currentPage = 1; applyFilters(); });
-      btnPrev.addEventListener("click", () => { if (currentPage > 1) { currentPage--; applyFilters(); } });
-      btnNext.addEventListener("click", () => { if (currentPage < totalPages) { currentPage++; applyFilters(); } });
-      btnLast.addEventListener("click", () => { currentPage = totalPages; applyFilters(); });
+      filterType.addEventListener("change", () => {
+        currentPage = 1;
+        applyFilters();
+      });
+
+      filterTld.addEventListener("change", () => {
+        currentPage = 1;
+        applyFilters();
+      });
+
+      toggleRemoved.addEventListener("change", () => {
+        currentPage = 1;
+        applyFilters();
+      });
+
+      togglePretracking.addEventListener("change", () => {
+        currentPage = 1;
+        applyFilters();
+      });
+
+      toggleExact.addEventListener("change", () => {
+        currentPage = 1;
+        applyFilters();
+      });
+
+      selectPageSize.addEventListener("change", (e) => {
+        pageSize = parseInt(e.target.value, 10);
+        currentPage = 1;
+        render();
+      });
+
+      // Pagination events
+      btnFirst.addEventListener("click", () => {
+        if (currentPage > 1) {
+          currentPage = 1;
+          syncUrlState();
+          render();
+        }
+      });
+
+      btnPrev.addEventListener("click", () => {
+        if (currentPage > 1) {
+          currentPage--;
+          syncUrlState();
+          render();
+        }
+      });
+
+      btnNext.addEventListener("click", () => {
+        if (currentPage < totalPages) {
+          currentPage++;
+          syncUrlState();
+          render();
+        }
+      });
+
+      btnLast.addEventListener("click", () => {
+        if (currentPage < totalPages) {
+          currentPage = totalPages;
+          syncUrlState();
+          render();
+        }
+      });
 
       jumpPageInput.addEventListener("change", (e) => {
         const val = parseInt(e.target.value, 10);
         if (!isNaN(val) && val >= 1 && val <= totalPages) {
           currentPage = val;
-          applyFilters();
+          syncUrlState();
+          render();
         } else {
-          e.target.value = currentPage;
+          jumpPageInput.value = currentPage;
         }
       });
 
-      // Bulk Domain Checker Modal logic
+      // Bulk Domain Checker Logic
       btnOpenChecker.addEventListener("click", () => {
         bulkModal.classList.remove("hidden");
       });
@@ -1106,65 +1347,73 @@
         bulkModal.classList.add("hidden");
       });
 
-      bulkModal.addEventListener("click", (e) => {
-        if (e.target === bulkModal) bulkModal.classList.add("hidden");
-      });
-
       btnClearBulk.addEventListener("click", () => {
         bulkInput.value = "";
         bulkResultsArea.classList.add("hidden");
-        bulkResultsList.innerHTML = "";
       });
 
       btnRunBulk.addEventListener("click", () => {
-        const text = bulkInput.value || "";
-        const domainsToCheck = text
-          .split(/[\n,]+/)
-          .map(d => d.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/.*$/, ""))
-          .filter(Boolean);
+        const text = (bulkInput.value || "").trim();
+        if (!text) return;
 
-        if (domainsToCheck.length === 0) {
-          showToast("Please enter at least one domain.");
-          return;
-        }
+        const lines = text.split(/[\n,]+/).map(s => {
+          let clean = s.trim().toLowerCase();
+          clean = clean.replace(/^https?:\/\//, "").replace(/\/.*$/, "");
+          return clean;
+        }).filter(Boolean);
 
         const domainMap = new Map();
         rawData.forEach(r => {
-          if (r.domain) domainMap.set(r.domain.toLowerCase(), r);
+          const d = (r.domain || "").toLowerCase().trim();
+          if (d) domainMap.set(d, r);
         });
 
-        lastBulkMatches = [];
-        let foundCount = 0;
-        let notFoundCount = 0;
+        const matches = [];
+        const missing = [];
 
-        const resultsHtml = domainsToCheck.map(dom => {
-          const match = domainMap.get(dom);
-          if (match) {
-            foundCount++;
-            lastBulkMatches.push(match);
-            const isRemoved = (match.removed_on || "").trim();
-            const statusStr = isRemoved ? `Left ${match.removed_on}` : "Active";
-            const statusColor = isRemoved ? "text-rose-400" : "text-emerald-400";
-            return `
-              <div class="flex items-center justify-between p-2 rounded bg-slate-900 border border-slate-800">
-                <span class="text-cyan-300 font-semibold">${escapeHtml(dom)}</span>
-                <span class="text-xs ${statusColor}">${statusStr} (First seen: ${match.first_seen || "—"})</span>
-              </div>
-            `;
+        lines.forEach(dom => {
+          if (domainMap.has(dom)) {
+            matches.push(domainMap.get(dom));
           } else {
-            notFoundCount++;
-            return `
-              <div class="flex items-center justify-between p-2 rounded bg-slate-900/50 border border-slate-800/60 opacity-60">
-                <span class="text-slate-400">${escapeHtml(dom)}</span>
-                <span class="text-xs text-slate-500">Not found in Journey</span>
-              </div>
-            `;
+            missing.push(dom);
           }
-        }).join("");
+        });
 
-        bulkSummaryText.textContent = `Found ${foundCount} of ${domainsToCheck.length} domains`;
-        bulkResultsList.innerHTML = resultsHtml;
+        lastBulkMatches = matches;
         bulkResultsArea.classList.remove("hidden");
+        bulkSummaryText.textContent = `Found ${matches.length} of ${lines.length} domains in Mediavine Ecosystem (${missing.length} not found)`;
+
+        let resultsHtml = "";
+        if (matches.length > 0) {
+          resultsHtml += `<div class="font-semibold text-emerald-400 mb-1">Found in Ecosystem (${matches.length}):</div>`;
+          resultsHtml += matches.map(m => {
+            const net = (m.network || "JOURNEY").toUpperCase();
+            let netLabel = net === "GRADUATED" ? "🎓 Graduated" : (net === "MEDIAVINE_CORE" ? "👑 Premier" : (net === "BOTH" ? "⚡ Dual" : "🚀 Journey"));
+            const rem = m.removed_on ? `<span class="text-rose-400 ml-2">(Left ${m.removed_on})</span>` : '<span class="text-emerald-400 ml-2">(Active)</span>';
+            return `<div class="p-1.5 bg-[#080c14] border border-slate-800 rounded flex items-center justify-between">
+              <span class="text-slate-200">${escapeHtml(m.domain)}</span>
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] text-cyan-300">${netLabel}</span>
+                <span class="text-[10px] text-slate-400">First seen: ${escapeHtml(m.first_seen || "—")}</span>
+                ${rem}
+              </div>
+            </div>`;
+          }).join("");
+        }
+
+        if (missing.length > 0) {
+          resultsHtml += `<div class="font-semibold text-slate-400 mt-2 mb-1">Not Found on Mediavine (${missing.length}):</div>`;
+          resultsHtml += missing.slice(0, 50).map(d => `
+            <div class="p-1 bg-[#080c14]/50 border border-slate-800/50 rounded text-slate-500">
+              ${escapeHtml(d)}
+            </div>
+          `).join("");
+          if (missing.length > 50) {
+            resultsHtml += `<div class="text-[10px] text-slate-500">...and ${missing.length - 50} more</div>`;
+          }
+        }
+
+        bulkResultsList.innerHTML = resultsHtml;
       });
 
       btnExportBulk.addEventListener("click", () => {
@@ -1174,13 +1423,13 @@
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.setAttribute("href", url);
-        link.setAttribute("download", `bulk_journey_matches_${new Date().toISOString().split("T")[0]}.csv`);
+        link.setAttribute("download", `bulk_mediavine_check_${new Date().toISOString().split("T")[0]}.csv`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
       });
 
-      // Initialize
+      // Start fetching
       init();
     })();
   </script>
