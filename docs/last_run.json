@@ -1,30 +1,30 @@
 {
-  "timestamp_utc": "2026-09-27T12:45:39.477342+00:00",
-  "date": "2026-09-27",
-  "total_tracked_ecosystem": 27542,
-  "active_ecosystem": 25260,
+  "timestamp_utc": "2026-09-28T14:57:42.257443+00:00",
+  "date": "2026-09-28",
+  "total_tracked_ecosystem": 27547,
+  "active_ecosystem": 25264,
   "graduated_count": 612,
   "journey_to_raptive_count": 310,
   "dual_active_count": 248,
   "raptive_tracked_count": 13037,
   "journey": {
     "network": "JOURNEY",
-    "total_tracked": 12472,
-    "active_sellers": 9285,
-    "removed_sellers": 3187,
-    "live_feed_count": 9288,
-    "new_today": 0,
-    "removed_today": 0,
+    "total_tracked": 12473,
+    "active_sellers": 9281,
+    "removed_sellers": 3192,
+    "live_feed_count": 9284,
+    "new_today": 1,
+    "removed_today": 5,
     "reactivated_today": 0
   },
   "mediavine_core": {
     "network": "MEDIAVINE_CORE",
-    "total_tracked": 9317,
-    "active_sellers": 9284,
+    "total_tracked": 9321,
+    "active_sellers": 9288,
     "removed_sellers": 33,
-    "live_feed_count": 9324,
+    "live_feed_count": 9329,
     "new_today": 4,
-    "removed_today": 2,
+    "removed_today": 0,
     "reactivated_today": 0
   },
   "raptive": {
@@ -33,8 +33,8 @@
     "active_sellers": 12980,
     "removed_sellers": 57,
     "live_feed_count": 12984,
-    "new_today": 3,
-    "removed_today": 4,
+    "new_today": 0,
+    "removed_today": 0,
     "reactivated_today": 0
   }
 }
